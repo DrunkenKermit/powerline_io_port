@@ -1,19 +1,11 @@
-// Powerline.io offline port — sound.
+// Sound. The original ships three gameplay effects and a music track; only the
+// track survived as a file, so the effects are synthesized here from noise and
+// low oscillators. The music plays on death.
 //
-// The client's own config carries exactly three gameplay sounds and a music
-// track: `lineLoopSound` (the hum of a line riding alongside another), 
-// `crashSound` (the death), and `sparkSound` (the crackle between two snakes
-// rubbing). `build/assets/music.ogg` is the client's track and nothing else
-// survived, so the three effects are synthesised here — noise and low
-// oscillators, filtered, which is what the originals are — and the port keeps
-// that track for the death screen. There are no pellet, kill or lead cues: the
-// client ships none, and chimes over a 1,500-pellet field are not its sound.
-//
-// Everything is gated on `enabled` (the settings panel's sound switch) and the
-// context is created lazily on the first cue, because a browser only lets an
-// AudioContext start inside a gesture. `unlock()` is that gesture.
+// Everything is gated on `enabled` and the AudioContext is created on the first
+// cue, since browsers only allow it inside a gesture. `unlock()` is that gesture.
 
-/** Two detuned saws through a lowpass: the electric hum of a speeding line. */
+/** Two detuned saws through a lowpass: the hum of a line riding alongside another. */
 interface Hum {
   oscillators: OscillatorNode[];
   gain: GainNode;
@@ -32,7 +24,7 @@ export class Sound {
 
   constructor(private readonly now: () => number = () => performance.now()) {}
 
-  /** Called from the first pointer or key event: browsers need a gesture. */
+  /** Call from a pointer or key event; a context cannot start without one. */
   unlock() {
     const context = this.ensure();
     if (context && context.state === "suspended") void context.resume();
@@ -63,7 +55,7 @@ export class Sound {
     return context;
   }
 
-  /** Half a second of white noise, reused by the crash and the sparks. */
+  /** Half a second of white noise, shared by the crash and the sparks. */
   private noise(context: AudioContext): AudioBuffer {
     if (this.noiseBuffer) return this.noiseBuffer;
     const frames = Math.floor(context.sampleRate * 0.5);
@@ -74,11 +66,11 @@ export class Sound {
     return buffer;
   }
 
-  /** The death: a burst of noise swept down, over a low thump. */
+  /** Death: a burst of noise swept down over a low thump. */
   crash() {
     if (!this.enabled) return;
-    // One crash per death: the wasKilled event and the respawn path can land in
-    // the same frame, and two stacked bursts clip.
+    // Both the death event and the respawn can land in one frame, and two
+    // stacked bursts clip.
     const now = this.now();
     if (now - this.lastCrash < 200) return;
     this.lastCrash = now;
@@ -112,17 +104,13 @@ export class Sound {
   }
 
   /**
-   * The electric crackle of two snakes rubbing.
-   *
-   * The client plays its `sparkSound` with `VOLUME_SPARK * lastDistVolume *
-   * masterVolume` and only arms the spark above 40 speed, so a brush past a
-   * rival is quiet and a charged powerslide is loud: `level` is that
-   * lastDistVolume (0..1) and `speed` is 0..1 across the speed range.
+   * The crackle of two snakes rubbing. `level` is how close the heads are (0..1)
+   * and `speed` is the rub's pace across the speed range.
    */
   spark(level = 1, speed = 1) {
     const time = this.now();
-    // The client wraps its spark frame counter at 3: a crackle roughly every
-    // third frame while the rub holds. Faster lines spark faster.
+    // A crackle roughly every third frame while the rub holds; faster lines spark
+    // faster.
     if (time - this.lastSpark < 88 - 46 * speed) return;
     this.lastSpark = time;
     if (!this.enabled) return;
@@ -137,7 +125,6 @@ export class Sound {
       source.buffer = this.noise(context);
       const filter = context.createBiquadFilter();
       filter.type = "highpass";
-      // A close, fast rub arcs brighter than a distant one.
       filter.frequency.value = 1500 + 900 * level + 1500 * speed + Math.random() * 900;
       const gain = context.createGain();
       const peak = strength * (0.7 + Math.random() * 0.6);
@@ -150,13 +137,9 @@ export class Sound {
   }
 
   /**
-   * The speed hum — the client's `lineLoopSound`.
-   *
-   * It belongs to riding alongside another line, so its level is the rub's
-   * proximity (`level`, the client's lastDistVolume) rather than a key press,
-   * and its pitch rides the speed the rub is feeding (`speed`, 0..1). Every
-   * change is a `setTargetAtTime` ramp on the live graph, so the hum swells and
-   * falls instead of restarting and clicking.
+   * The speed hum. It belongs to riding alongside another line, so it follows the
+   * rub's proximity and the speed the rub feeds. Levels are ramped on the live
+   * graph so the hum swells instead of restarting with a click.
    */
   setBoost(on: boolean, level = 1, speed = 0) {
     if (!this.enabled) on = false;

@@ -1,29 +1,22 @@
-// Powerline.io offline port — canvas renderer.
-//
-// The original paints its snakes as glowing polylines with a bright head, draws
-// pellets as soft glowing orbs, and keeps its whole in-game HUD — score, the
-// leaderboard, the minimap — on the canvas rather than in the document. This keeps
-// that arrangement and uses the same art (the food orb, the leader's crown) from
-// `build/assets` where the client did.
+// Canvas renderer. Snakes are glowing polylines with a bright head, pellets are
+// soft orbs, and the whole in-game HUD (score, leaderboard, minimap) is painted
+// here rather than laid out in the document, as the original does.
 
 import { CONFIG, interpolatedHead, interpolatedPath, type Pellet, type Snake, type Vec, type World } from "./engine.ts";
 
 export interface Art {
   food: HTMLImageElement | null;
   boostHint: HTMLImageElement | null;
-  /** The client's own board tile, cropped out of `images/sheet.png`. */
+  /** Board tile, cropped out of the sprite sheet. */
   board: HTMLImageElement | HTMLCanvasElement | null;
-  /** `images/sheet.png` itself: the in-game sprites below are cut from it. */
+  /** The sprite sheet itself; the sprites below are cut from it. */
   sheet: HTMLImageElement | null;
 }
 
 /**
- * The client's in-game sprites, at their exact rectangles in `images/sheet.png`.
- * Read out of the shipped client at runtime: `Global.resources.frames` — each
- * frame carries its source `x`, `y`, `width` and `height` there. `grid` is the
- * board tile, `head_dot` the bright dot at the front of every snake, `glow` and
- * `glow_hard` the two additive haloes, `food` the pellet, `crown` the king's
- * crown, and the skull pieces are the kill-streak icon the client composes.
+ * Sprite rectangles in the sheet, as the original's `Global.resources.frames`
+ * lays them out: head dot, two haloes, pellet, crown, and the skull pieces the
+ * kill-streak icon is composed from.
  */
 const FRAMES = {
   head: [132, 104, 47, 46],

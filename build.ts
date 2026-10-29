@@ -1,9 +1,12 @@
-// Builds powerline-play.html: the port, the original's stylesheet, its About page
-// and every asset it uses, inlined into one file.
+// Builds singlefile.html: the game, the menu markup and stylesheet, the About
+// page and every image, font and sound, inlined into one document.
 //
-// Inputs: `src/` is the port's own code and page shell, `build/assets` and
-// `build/menu` are the page's media and markup. Output: powerline-play.html.
+// Sources: src/ (the game and the page shell) and build/ (menu markup, media).
 import { extname } from "node:path";
+
+const OUTPUT = "singlefile.html";
+const ASSETS = "build/assets";
+const MENU = "build/menu";
 
 const MIME: Record<string, string> = {
   ".png": "image/png",
@@ -18,32 +21,38 @@ async function dataUri(path: string) {
   return `data:${type};base64,${bytes.toString("base64")}`;
 }
 
-const ASSETS = "build/assets";
-const MENU = "build/menu";
+const font = await dataUri(`${ASSETS}/roboto-black.ttf`);
+const gear = await dataUri(`${ASSETS}/gear.png`);
+const logo = await dataUri(`${ASSETS}/logo.png`);
+const favicon = await dataUri(`${ASSETS}/favicon.png`);
+const food = await dataUri(`${ASSETS}/food.png`);
+const boostHint = await dataUri(`${ASSETS}/close-to-boost.png`);
+const sprites = await dataUri(`${ASSETS}/sprites.png`);
+const badgeIos = await dataUri(`${ASSETS}/badge-ios.png`);
+const badgeAndroid = await dataUri(`${ASSETS}/badge-android.png`);
+const discord = await dataUri(`${ASSETS}/discord.png`);
+const reddit = await dataUri(`${ASSETS}/reddit.png`);
+const copycheck = await dataUri(`${ASSETS}/copycheck.png`);
+const music = await dataUri(`${ASSETS}/music.ogg`);
 
-const assets: Record<string, string> = {
-  __ASSET_FONT__: await dataUri(`${ASSETS}/roboto-black.ttf`),
-  __ASSET_GEAR__: await dataUri(`${ASSETS}/gear.png`),
-  __ASSET_LOGO__: await dataUri(`${ASSETS}/logo.png`),
-  __ASSET_FAVICON__: await dataUri(`${ASSETS}/favicon.png`),
-  __ASSET_FOOD__: await dataUri(`${ASSETS}/food.png`),
-  __ASSET_BOOST_HINT__: await dataUri(`${ASSETS}/close-to-boost.png`),
-  // The client's playfield sprite: its first tile is the board the game stands on.
-  __ASSET_SHEET__: await dataUri(`${ASSETS}/sprites.png`),
-  __ASSET_BADGE_IOS__: await dataUri(`${ASSETS}/badge-ios.png`),
-  __ASSET_BADGE_ANDROID__: await dataUri(`${ASSETS}/badge-android.png`),
-  __ASSET_DISCORD__: await dataUri(`${ASSETS}/discord.png`),
-  __ASSET_REDDIT__: await dataUri(`${ASSETS}/reddit.png`),
-  __ASSET_COPYCHECK__: await dataUri(`${ASSETS}/copycheck.png`),
-  __ASSET_SOUND__: await dataUri(`${ASSETS}/music.ogg`),
+const tokens: Record<string, string> = {
+  __ASSET_FONT__: font,
+  __ASSET_LOGO__: logo,
+  __ASSET_FAVICON__: favicon,
+  __ASSET_FOOD__: food,
+  __ASSET_BOOST_HINT__: boostHint,
+  __ASSET_SHEET__: sprites,
+  __ASSET_BADGE_IOS__: badgeIos,
+  __ASSET_BADGE_ANDROID__: badgeAndroid,
+  __ASSET_DISCORD__: discord,
+  __ASSET_REDDIT__: reddit,
+  __ASSET_COPYCHECK__: copycheck,
+  __ASSET_SOUND__: music,
 };
 
-/* --------------------------------------------------------------- the menu -- */
+/* ------------------------------------------------------------------ menu -- */
 
-// The menu is the site's, not the port's: every panel, panel title, stat card,
-// button, store badge and disconnection notice is the markup powerline.io itself
-// serves, kept whole in `build/menu/body.html`. Only its references to files on
-// its own host are swapped for the bytes inlined below.
+// The menu markup, minus its own <html>/<body> wrapper.
 let body = await Bun.file(`${MENU}/body.html`).text();
 body = body.slice(body.indexOf(">", body.indexOf("<body")) + 1, body.lastIndexOf("</body>"));
 
@@ -56,11 +65,11 @@ const FILE_REFS: Record<string, string> = {
   "./copycheck.png": "__ASSET_COPYCHECK__",
 };
 for (const [reference, token] of Object.entries(FILE_REFS)) {
-  if (!body.includes(reference)) throw new Error(`the menu no longer references ${reference}`);
+  if (!body.includes(reference)) throw new Error(`body.html no longer references ${reference}`);
   body = body.replaceAll(reference, token);
 }
 
-/** The index just past the `</div>` that closes the element opening at `start`. */
+/** Index just past the </div> that closes the element opening at `start`. */
 function afterClosingDiv(html: string, start: number) {
   let depth = 0;
   for (const match of html.slice(start).matchAll(/<div\b|<!--|<\/div>/g)) {
@@ -71,35 +80,30 @@ function afterClosingDiv(html: string, start: number) {
       depth += 1;
     }
   }
-  throw new Error("unbalanced <div> — the opening element has no close");
+  throw new Error("unbalanced <div>: element has no close");
 }
 
-// The weekly standings are a service the site runs and this port does not, so the
-// King of the Week stack — and the setting that only toggles its glow — are cut
-// out of the menu rather than shipped empty.
+// The weekly standings need the live service, so the panel and the setting that
+// only toggles its glow come out.
 const kotwStart = body.indexOf('<div id="kingOfTheWeekPanelStack"');
-if (kotwStart < 0) throw new Error("the menu no longer carries the King of the Week panel stack");
+if (kotwStart < 0) throw new Error("no King of the Week panel stack in body.html");
 body = body.slice(0, kotwStart) + body.slice(afterClosingDiv(body, kotwStart));
 
 const kotwRow = /[ \t]*<label class="settings-row" for="settingsShowKOTWEffect">[\s\S]*?<\/label>\n/;
-if (!kotwRow.test(body)) throw new Error("the settings panel no longer carries the KOTW effect row");
+if (!kotwRow.test(body)) throw new Error("no KOTW effect row in the settings panel");
 body = body.replace(kotwRow, "");
 if (body.includes("kingOfTheWeek")) throw new Error("a King of the Week element survived the strip");
 
-// The only line on the page that is the port's own: a plain, unlinked credit at
-// the foot of the join panel, so it lives and dies with the menu.
 const entryTurn = '<div hidden id="entryturn"></div>';
-if (!body.includes(entryTurn)) throw new Error("the join panel has no #entryturn anchor");
+if (!body.includes(entryTurn)) throw new Error("join panel has no #entryturn anchor");
 body = body.replace(entryTurn, `<div id="portCredit">port by kermit.dev</div>\n\t\t\t\t\t${entryTurn}`);
 
-// The About dialog's frame is the one place the site fetches a second page. The
-// single file carries that page inside a <template> instead, so the frame is given
-// the id the script fills and its src is dropped. Nothing else changes.
+// The About dialog normally loads a second page. It ships inside a <template>
+// here, so the frame keeps its class and loses its src.
 const aboutFrame = '<iframe class="more-info-frame" src="more_info.html" title="Powerline.io information"></iframe>';
-if (!body.includes(aboutFrame)) throw new Error("the About dialog's frame is missing from build/menu/body.html");
+if (!body.includes(aboutFrame)) throw new Error("About frame missing from body.html");
 body = body.replace(aboutFrame, '<iframe id="moreInfoFrame" class="more-info-frame" title="Powerline.io information"></iframe>');
 
-// The ids the port's script drives. A missing one means the menu markup moved.
 for (const id of [
   "xcanvas",
   "overlay",
@@ -127,52 +131,39 @@ for (const id of [
   "debugPanel",
   "slot-1",
 ]) {
-  if (!body.includes(`id="${id}"`) && !body.includes(`id='${id}'`)) throw new Error(`the menu markup has no #${id}`);
+  if (!body.includes(`id="${id}"`) && !body.includes(`id='${id}'`)) throw new Error(`body.html has no #${id}`);
 }
 
-/* ------------------------------------------------------------- the styles -- */
+/* ---------------------------------------------------------------- styles -- */
 
-// The original's stylesheet, with its two file references turned into the assets'
-// own bytes, plus every block the live page carries inline in its head: the About
-// overlay's styles, the ad slots' gating, and the slot media queries.
 let styles = await Bun.file(`${ASSETS}/powerline.css`).text();
-// The stylesheet declares the same face three times: Powerline Display and the
-// proxima-nova-1/2 aliases. Nothing on the page asks for the aliases (checked in
-// the body, the head and the About page), and three inlined copies of the 140 KB
-// font is a third of the single file spent on faces nothing renders — so the
-// alias rules go and the font is inlined once. Leaving them in also meant two
-// relative URLs that could only 404 in a page that must stand on its own.
+
+// Three @font-face rules point at the same font through different family names.
+// Only "Powerline Display" is used anywhere, and inlining the file three times
+// would cost ~280 KB, so the aliases go.
 for (const alias of ["proxima-nova-1", "proxima-nova-2"]) {
-  if (!styles.includes(`font-family:${alias}`)) throw new Error(`the stylesheet no longer declares ${alias}`);
+  if (!styles.includes(`font-family:${alias}`)) throw new Error(`powerline.css no longer declares ${alias}`);
   styles = styles.replace(new RegExp(`@font-face\\{[^}]*font-family:${alias}[^}]*\\}`, "g"), "");
 }
-styles = styles.replaceAll("url(./roboto-black.ttf)", `url(${assets.__ASSET_FONT__})`);
-styles = styles.replace(/url\(\.\/gear\.png\)/g, `url(${assets.__ASSET_GEAR__})`);
+styles = styles.replaceAll("url(./roboto-black.ttf)", `url(${font})`);
+// The gear is masked twice on the same element (webkit + standard); one copy
+// behind a custom property keeps the image out of the file twice.
+styles = styles.replaceAll("url(./gear.png)", "var(--gear)");
+styles = `:root{--gear:url(${gear})}${styles}`;
 
 const head = await Bun.file(`${MENU}/head.html`).text();
 const inlineBlocks = [...head.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]!);
 for (const expected of [".more-info-overlay", "#slot-1", "#slot-3"]) {
-  if (!inlineBlocks.some((block) => block.includes(expected))) throw new Error(`build/menu/head.html has lost its ${expected} styles`);
+  if (!inlineBlocks.some((block) => block.includes(expected))) throw new Error(`head.html lost its ${expected} styles`);
 }
-// The settings panel is laid out for the eight rows the client ships. One of them
-// is the KOTW effect, so the fixed height has to lose exactly that row (34px) or
-// the switch list stops short of the panel's bottom edge.
-const SETTINGS_ROW = 34;
-const SETTINGS_HEIGHT = 324 - SETTINGS_ROW;
-assets.__STYLES__ =
-  `${styles}\n${inlineBlocks.join("\n")}\n#settingsPanel { height: ${SETTINGS_HEIGHT}px; }\n`;
 
-// The About page the launched TELL ME MORE overlay shows. It is dropped into a
-// <template> as markup, not into a string, so it needs no escaping — only the one
-// sequence that would end the element early.
+const stylesheet = `${styles}\n${inlineBlocks.join("\n")}\n`;
+
 const about = await Bun.file(`${MENU}/about.html`).text();
-assets.__MORE_INFO__ = about.replace(/<\/template/gi, "<\\/template");
-
-// The live page opens and closes its About dialog with an inline script of its own.
-// That script is part of the menu, so the port runs it rather than a rewrite of it.
+const moreInfo = about.replace(/<\/template/gi, "<\\/template");
 const menuScript = await Bun.file(`${MENU}/about-overlay.js`).text();
 
-/* --------------------------------------------------------------- the code -- */
+/* ------------------------------------------------------------------ code -- */
 
 const result = await Bun.build({
   entrypoints: ["src/main.ts"],
@@ -186,23 +177,30 @@ if (!result.success) {
 }
 
 let html = await Bun.file("src/index.html").text();
-for (const [placeholder, replacement] of [
-  ["<!-- PORT:MENU -->", () => body],
-  ["<!-- PORT:MENU SCRIPT -->", () => `<script>${menuScript}</script>`],
+
+// Replacers are functions so that "$&" and friends in an asset are not expanded
+// as replacement patterns.
+const fill = (text: string) => {
+  let out = text;
+  for (const [token, value] of Object.entries(tokens)) out = out.replaceAll(token, () => value);
+  return out;
+};
+
+for (const [placeholder, value] of [
+  ["<!-- MENU -->", body],
+  ["<!-- MENU SCRIPT -->", `<script>${menuScript}</script>`],
 ] as const) {
-  // A second copy of a placeholder would put the menu inside the stylesheet.
-  if (html.split(placeholder).length !== 2) throw new Error(`src/index.html must carry exactly one ${placeholder}`);
-  html = html.replace(placeholder, replacement);
+  if (html.split(placeholder).length !== 2) throw new Error(`index.html must have exactly one ${placeholder}`);
+  html = html.replace(placeholder, () => value);
 }
-// Function replacers: a bundle dropped in as a replacement string would have its
-// `$&`, `$'`, `` $` `` sequences expanded into document text.
-for (const [token, value] of Object.entries(assets)) html = html.replaceAll(token, () => value);
 
-const bundle = (await result.outputs[0]!.text()).replaceAll("</script>", "<\\/script>");
-let js = bundle;
-for (const [token, value] of Object.entries(assets)) js = js.replaceAll(token, () => value);
-html = html.replaceAll("__SCRIPT__", () => js);
+const script = (await result.outputs[0]!.text()).replaceAll("</script>", "<\\/script>");
+html = fill(
+  html
+    .replaceAll("__STYLES__", () => fill(stylesheet))
+    .replaceAll("__MORE_INFO__", () => moreInfo)
+    .replaceAll("__SCRIPT__", () => script),
+);
 
-await Bun.write("powerline-play.html", html);
-const size = (await Bun.file("powerline-play.html").size) / 1024;
-console.log(`powerline-play.html — ${size.toFixed(0)} KB`);
+await Bun.write(OUTPUT, html);
+console.log(`${OUTPUT} — ${((await Bun.file(OUTPUT).size) / 1024).toFixed(0)} KB`);

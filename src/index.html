@@ -8,12 +8,8 @@
 <!-- The original's own stylesheet, kept in build/assets/powerline.css. -->
 <style>__STYLES__</style>
 <style>
-  /* Port-only additions. The menu itself is the original's markup and stylesheet,
-     injected by build.ts at the menu placeholder below; these rules are the
-     only things powerline.io does not ship. */
-  /* The settings panel gains the port's controls rows, so it can be taller than
-     the client's fixed 324px. Everything else about it — the title plate, the
-     rows, the segmented buttons — is the client's own stylesheet. */
+  /* Additions on top of the original stylesheet. The settings panel gains the
+     controls rows, so its fixed 324px height has to become a maximum. */
   #settingsPanel {
     height: auto;
     max-height: calc(100vh - 120px);
@@ -24,7 +20,7 @@
   #settingsPanel::-webkit-scrollbar { width: 6px; }
   #settingsPanel::-webkit-scrollbar-thumb { background: rgba(5, 255, 255, .3); border-radius: 3px; }
 
-  /* A keybind chip, dressed as the settings panel's own segmented buttons. */
+  /* Keybind chip, styled like the panel's segmented buttons. */
   .settings-keybind {
     box-sizing: border-box; flex: none; min-width: 62px; height: 20px; padding: 0 8px;
     color: #91bfc1; cursor: pointer; background: #00141b9e;
@@ -38,16 +34,13 @@
     color: #00383d; background: #05ffff; border-color: #05ffff; box-shadow: 0 0 7px #05ffff7a;
   }
   .settings-keybind-row[hidden] { display: none; }
-  /* The stylesheet drops the last row's rule; with rows that can be hidden, the
-     script marks which row is last on screen. */
+  /* Rows can be hidden, so the script marks whichever one is last. */
   .settings-list .settings-row.is-last { border-bottom: 0; }
 
-  /* The canvas is the steering surface on touch devices: without this the browser
-     claims the drag for scrolling and zooming. */
+  /* Keep the browser from claiming touch drags for scroll and zoom. */
   #xcanvas { touch-action: none; }
 
-  /* The client's own #stats element, in the corner: the frame rate and nothing
-     else. Empty until a run starts, so it is invisible in the menu. */
+  /* Frame rate, top left. Empty outside a run, so the menu shows nothing. */
   #stats {
     position: absolute; top: 8px; left: 10px; z-index: 5; pointer-events: none;
     font-family: "Powerline Display", "Arial Black", Arial, sans-serif; font-size: 12px; line-height: 1.4;
@@ -55,19 +48,15 @@
   }
   #stats:empty { display: none; }
 
-  /* Menu-only credit. Not a link, not clickable, hidden with the menu. */
+  /* Menu-only credit line. Plain text, no link. */
   #portCredit {
     margin-top: 18px; text-align: center; pointer-events: none; user-select: none;
     font: 700 12px/1.4 "Powerline Display", "Arial Black", Arial, sans-serif;
     letter-spacing: .6px; color: #fff; text-shadow: 0 0 8px rgba(255, 255, 255, .35);
   }
 
-  /* The boot screen. The live page is blank until its bundle answers and then
-     paints the menu and the arena on the same frame; this file is one 900 KB
-     document, so it needs something over that gap. It is the client's own logo
-     and its own "Connecting..." line, on its own board colour, and it leaves the
-     moment the first arena frame is on the canvas — the same hand-over the live
-     page makes, just made explicit. */
+  /* Boot screen: logo and "Connecting..." over the board colour, removed as soon
+     as the first arena frame is on the canvas. */
   #bootScreen {
     position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 26px;
@@ -114,19 +103,19 @@
 </style>
 </head>
 <body data-feedly-mini="yes">
-<!-- The boot screen: the client's logo and its own connecting line, over its own
-     board colour, until the first arena frame is drawn behind it. -->
+<!-- Boot screen. The logo takes its src from the menu's #mainLogo at startup so
+     the file only carries the image once. -->
 <div id="bootScreen" role="status" aria-live="polite" aria-label="Loading powerline.io">
   <div class="boot-sweep" aria-hidden="true"></div>
-  <img class="boot-logo" src="__ASSET_LOGO__" alt="powerline.io">
+  <img class="boot-logo" alt="powerline.io">
   <div class="boot-status">Connecting<em class="boot-dots"><i>.</i><i>.</i><i>.</i></em></div>
   <div class="boot-hint">GET CLOSE TO OTHER SNAKES TO BOOST</div>
 </div>
-<!-- PORT:MENU -->
-<!-- The client's own inline script for the About dialog, from the live page. -->
-<!-- PORT:MENU SCRIPT -->
+<!-- MENU -->
+<!-- The menu's inline About-dialog script. -->
+<!-- MENU SCRIPT -->
 
-<!-- The client's own About page, kept here so the overlay works from the single file. -->
+<!-- The About page, carried here so the overlay works offline. -->
 <template id="moreInfoSource">__MORE_INFO__</template>
 
 <script>__SCRIPT__</script>

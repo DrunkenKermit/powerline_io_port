@@ -1,25 +1,18 @@
-// Powerline.io offline port — simulation.
+// Simulation.
 //
-// Every number here is the original's, taken from the settings the game ships to
-// its clients and from the community server that speaks its protocol:
-//   ArenaSize 300, UpdateInterval 100ms, FoodValue 1.5, DefaultLength 10,
-//   MaxRubSpeed 200, DefaultZoom 2, ZoomLevel2 10, MinimumZoom 2 / 1.4,
-//   MinimumZoomScore 100, UPDATE_EVERY_N_TICKS 3, SCORE_MULTIPLIER = 10 / FoodValue.
-// Snakes turn in 90-degree lanes picked by the cursor, exactly like the original.
-// Speed has two sources, both of them the original's: riding alongside another
-// line (the powerslide) and chaining pellets. There is no click-to-boost — the
-// game's own hint says "GET CLOSE TO OTHER SNAKES TO BOOST" and its control
-// sheets list movement only.
+// The constants below follow the game's own client config and the community
+// server that speaks its protocol: ArenaSize 300, UpdateInterval 100ms, FoodValue
+// 1.5, DefaultLength 10, MaxRubSpeed 200, DefaultZoom 2, MinimumZoom 2 / 1.4.
+// Snakes turn in 90-degree lanes picked by the cursor.
+//
+// Speed comes from two places, both the original's: riding alongside another line
+// (the powerslide) and chaining pellets. There is no click-to-boost.
 
 export const CONFIG = {
   /**
-   * The client's arena is a rectangle, not a square: its own `Global.arenaWidth`
-   * and `arenaHeight` are 5000 × 1600. The port draws in units 6⅔× the client's
-   * (the client's 2.78-wide body is this game's 0.42), so the same rectangle is
-   * 750 × 240 here. That is the point of matching it: at 1280 × 800 the view is
-   * 152 × 95 units, so the walls sit 4.9 screens across and 2.5 screens down —
-   * exactly where they are in the original — and the board stays populated
-   * instead of spreading 13 bots over 33 screens of empty map.
+   * The client's arena is a rectangle: 5000 × 1600 in its units. Drawn here at
+   * 6⅔× the scale (a 2.78 body becomes 0.42), so the same rectangle is 750 × 240
+   * and the walls land where they do in the original.
    */
   arenaWidth: 750,
   arenaHeight: 240,
@@ -32,32 +25,18 @@ export const CONFIG = {
   defaultLength: 10,
   foodValue: 1.5,
   scoreMultiplier: 10 / 1.5,
-  /**
-   * MaxRubSpeed — the speed cap. The original has no click-to-boost: its
-   * powerslide is gained by riding alongside another line, and the reference
-   * server computes every snake's speed as `0.25 + extraSpeed / 1000`, with
-   * extraSpeed capped here. That is 0.45 units a step, 1.8× the base speed.
-   */
+  /** Speed cap: `0.25 + extraSpeed / 1000` with extraSpeed capped here, so
+   * 0.45 a step, 1.8× base. */
   maxRubSpeed: 200,
   /** extraSpeed above which a snake is drawn as speeding (bright body, trail). */
   speedGlowThreshold: 10,
-  /**
-   * `MaxRubAcceleration` from the reference server's config: rubbing adds
-   * `(MaxRubAcceleration - 1) × (5 - distance) / 4` to `extraSpeed` each tick, and
-   * speed reads `base + extraSpeed / 1000`. At the 200 cap that is +0.2 per step,
-   * so a long rub nearly doubles your speed — not the 4 units per step the port's
-   * old `extraSpeed × 0.02` produced, which jumped the head 12 units a tick and
-   * tunnelled straight through bodies.
-   */
+  /** MaxRubAcceleration: a rub adds `(MaxRubAcceleration - 1) × (5 - distance) / 4`
+   * to extraSpeed per tick. */
   rubAcceleration: 4,
   /** How fast a rub wears off once the snakes part, per tick (reference: 1). */
   rubDecay: 1,
-  /**
-   * The reference server's eat combo: a pellet eaten within 500ms of the last one
-   * adds to a streak, and from the fifth on the snake gains 2 extra speed a tick
-   * (capped at MaxRubSpeed). It is the burst a player gets for ploughing through a
-   * field of food, and it is why a good line visibly brightens and pulls ahead.
-   */
+  /** Eat combo: pellets eaten within the window stack, and from the fifth on the
+   * snake gains extra speed per tick (still capped at MaxRubSpeed). */
   eatComboSize: 5,
   eatComboWindowMs: 500,
   eatComboAcceleration: 2,
@@ -67,45 +46,29 @@ export const CONFIG = {
   /** Geometry. */
   snakeRadius: 1.4,
   /**
-   * How close a head may come to another snake's body before it dies, and the
-   * radius bots probe with when they look ahead. A body is 0.42 wide, so this is
-   * its own half-width plus the half-width of the head sprite's core: two snakes
-   * may weave past each other, but one running into a body — or along it, or
-   * head-on — dies instead of passing through.
+   * Distance between two heads at which they are rubbing, and the radius a head
+   * dies within on another snake's body. A body is 0.42 wide, so this is its
+   * half-width plus the head sprite's core: two snakes can weave past each other,
+   * but not through each other.
    */
   collisionRadius: 0.55,
-  /**
-   * How close two heads have to be for a crash to count as head-on rather than
-   * one line running into the other's body: two head sprites are 1.66 units of
-   * ink side by side, so at this distance they have visibly struck each other.
-   */
+  /** Two head sprites side by side are 1.66 units of ink, so at this distance a
+   * crash reads as head-on rather than one line hitting a body. */
   headOnRadius: 1.65,
   /**
-   * How much of a snake's own trail immediately behind its head is ignored when
-   * it is being tested against itself. A neck is the body that has to swing
-   * through where the head just turned, so testing the first couple of units
-   * would kill every snake on its first corner; beyond them the trail is fair
-   * game, including your own.
+   * Body immediately behind the head that is skipped when testing a snake against
+   * itself. The neck has to swing through where the head just turned; past a
+   * couple of units the trail counts, including your own.
    */
   selfSkip: 2,
   /**
-   * Reach of the head over a pellet, measured from the head's centre to the
-   * pellet's centre. Both are drawn sprites, so the reach is where their ink
-   * meets, not where their boxes meet: the `food` frame's opaque edge sits at
-   * 0.425 of its drawn side (2.83 units on average), the head's at 0.44 of its
-   * 1.9, which is 1.20 + 0.83. At the old 2.3 an orb popped with a visible gap
-   * between it and the head — a third of a pellet's width of empty board.
+   * Reach from the head's centre to a pellet's centre, where the two sprites'
+   * ink meets: 0.425 of the food frame plus 0.44 of the head, 2.83 + 1.20 over
+   * their drawn sizes.
    */
   eatRadius: 2.03,
-  /**
-   * Camera settings, as the client's own bundle carries them: `defaultZoom 1.4`,
-   * `minZoom 1`, `minZoomScore 100`, so the view pulls out by exactly 1.4× once
-   * its score reaches 100. The port's default 2 is its calibrated equivalent of
-   * the client's 1.4 (the absolute scale is set by VIEW_UNITS, which was fitted
-   * to the client's board tile); the pull-out has to keep the client's *ratio*,
-   * so the far end is 2 / 1.4. At 1.5 the port zoomed out 1.333× — four fifths of
-   * the real step, which is visible as a smaller board at the same score.
-   */
+  /** Camera: `defaultZoom 1.4`, `minZoom 1`, `minZoomScore 100` in the client, so
+   * the view pulls out 1.4× at score 100. 2 is this game's equivalent of 1.4. */
   defaultZoom: 2,
   zoomLevel2: 10,
   minimumZoom: 2 / 1.4,
@@ -121,20 +84,13 @@ export const CONFIG = {
   growthDelayMs: 600,
   /** Energy lost when a snake dies: 10%, the value the live build settled on. */
   deathEnergyLoss: 0.1,
-  /**
-   * A real powerline server spawns `ArenaSize * 5` pellets (Server.js,
-   * maxNaturalFood) — 1,500 of them across the arena. The port shipped a third of
-   * that, which is why eating felt so rare.
-   */
+  /** A real server spawns `ArenaSize * 5` pellets: 1,500 across the arena. */
   naturalFood: 1500,
   botCount: 13,
   /** Cap on live particles. The client pools and budgets these for the same reason. */
   maxParticles: 700,
-  /**
-   * How far from the player bots pick their wander waypoints. The live game's
-   * bots mill around wherever the players are, and the port's arena is only 2.5
-   * screens tall — this keeps three or four in sight rather than none.
-   */
+  /** How far from the player bots pick waypoints, and where they turn back. The
+   * arena is only 2.5 screens tall, so both are tight. */
   botRoam: 110,
   /** Past this distance a bot stops wandering and heads back to the crowd. */
   botLeash: 160,
@@ -142,34 +98,16 @@ export const CONFIG = {
   botThinkMs: 300,
   botLapse: 0.1,
   /**
-   * Steering commitment: once a snake turns it holds that lane this long, and it
-   * only turns once the input is off the lane by more than this many units.
-   * Without the two, a target on the exact diagonal would make the snake flip
-   * direction every tick. The margin is deliberately tiny: at the game's
-   * 16.8 pixels per unit, the old 4 put a 67-pixel dead zone around the head, so
-   * the mouse had to be dragged a third of the way across the screen to turn.
+   * A turn is held this long, and only breaks once the input is this far off the
+   * current lane — otherwise a target on the diagonal flips direction every tick.
    */
   turnCooldownMs: 300,
   turnMargin: 0.35,
-  /**
-   * Shortest leg the player must cover before turning again: one step, so a turn
-   * always advances and two taps cannot stack corners on the same point. The
-   * original turns the moment the input arrives, so this is only about not
-   * producing a zero-length corner — not a delay you can feel. It has to stay
-   * just under the distance covered in one tick (`baseSpeed * ticksPerStep`,
-   * 0.75): at 0.9 a corner needed two ticks before it would accept the next
-   * turn, so a quick double tap lost its second turn for 200ms and the snake
-   * carried straight on through the lane the player had already left.
-   */
+  /** Shortest leg before the next turn. One step is 0.75, so a double tap cannot
+   * stack two corners on the same point. */
   minLegLength: 0.7,
-  /**
-   * How long a leg a bot must cover before it may turn again. This used to be 12,
-   * which is a good fifteen body widths: bots held one straight line for over a
-   * second and a half, so the board read as a lattice of rails instead of snakes
-   * weaving after food. Seven units is still many times the body width — short
-   * boxes are what make a snake cross its own trail — while letting a bot turn
-   * about once a second like a player does.
-   */
+  /** Same, for bots. Long enough that a snake does not box itself in, short
+   * enough that it turns about once a second like a player. */
   botMinLegLength: 7,
   /** Bots ignore pellets this close: chasing one on top of the head spins them. */
   botMinChase: 10,

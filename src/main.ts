@@ -1,9 +1,6 @@
-// Powerline.io offline port — client.
-//
-// Drives the original client's own markup and stylesheet with the local
-// simulation: the nickname entry, the settings panel, the death screen with its
-// stat cards, the kill confirmation, the About overlay, and the canvas HUD the
-// original paints itself.
+// Client. Wires the menu markup to the simulation: nickname entry, settings,
+// the death screen and its stat cards, the kill confirmation, the About overlay,
+// and the canvas HUD.
 
 import { CONFIG, DIR, World, type Dir, type Snake } from "./engine.ts";
 import { sound } from "./audio.ts";
@@ -92,11 +89,8 @@ interface Settings {
 }
 
 /**
- * Storage, guarded. This file is meant to run from disk, and browsers differ on
- * whether a `file://` page may use localStorage at all — a privacy setting or a
- * sandboxed frame can make even reading it throw. That used to happen at module
- * load, before anything was drawn, so the page stayed blank; with these two the
- * game simply starts with defaults and forgets them.
+ * Storage, guarded: a `file://` page may be denied localStorage entirely, and
+ * reading it at startup used to blank the page. Defaults are fine.
  */
 const store = {
   get(key: string): string | null {
@@ -131,10 +125,8 @@ const readBool = (key: string, fallback: boolean) => {
 };
 
 /**
- * The default input mode. A desktop gets the mouse; a device whose only pointer
- * is a finger gets touch, because there is no cursor to steer with and the port
- * used to leave those players unable to move at all until they found the
- * setting. `(pointer: fine)` also matches mice on hybrid laptops.
+ * Mouse on a desktop, touch where the only pointer is a finger. `(pointer: fine)`
+ * also matches a mouse on a hybrid laptop.
  */
 function defaultInput(): InputMode {
   if (typeof window.matchMedia === "function") {
@@ -222,10 +214,8 @@ let deathTrack: HTMLAudioElement | null = null;
 let hasBoosted = false;
 let shakePower = 0;
 /**
- * The rub state last sent to the audio graph. Driving `setTargetAtTime` on four
- * parameters from every animation frame (240 automation events a second) churns
- * the audio thread for values that have not moved; the hum only needs a new
- * target when the rub actually changes.
+ * The rub state last sent to the audio graph. Ramping four parameters every frame
+ * churns the audio thread for values that have not moved.
  */
 let audioState = { rubbing: false, closeness: 0, pace: 0 };
 let fps = 60;
@@ -1333,24 +1323,19 @@ layoutMenu();
 setMenuVisible(true);
 deathAudio();
 
-/**
- * The tip line under the logo. The client's markup ships it empty and its script
- * fills it from a small set — four loads of the live menu showed `EAT TO GROW`
- * three times and `CROSS OTHER PLAYERS` once, and its own screenshot shows
- * `GET CLOSE TO OTHER SNAKES TO BOOST` — so the port picks one the same way.
- */
+/** The tip line under the logo: the markup ships it empty and picks at load. */
 const TIPS = ["GET CLOSE TO OTHER SNAKES TO BOOST", "EAT TO GROW", "CROSS OTHER PLAYERS"];
 $("tips").textContent = TIPS[Math.floor(Math.random() * TIPS.length)]!;
 
 const bootScreen = $("bootScreen");
+// The boot logo is the menu's own image, so the file stores it once.
+const bootLogo = document.querySelector<HTMLImageElement>(".boot-logo");
+if (bootLogo) bootLogo.src = $<HTMLImageElement>("mainLogo").src;
 
 /**
- * The boot hand-over. The live page holds a blank canvas until its bundle
- * answers at ~0.9s, then paints the menu and its board on the same frame, and
- * swaps its "Connecting..." row for the nickname row about 1.4s after that.
- * This file is one document, so its own loader covers the gap; the hand-over is
- * made on the frame the first arena frame has actually been drawn, not on a
- * timer, so the menu can never flash over an unpainted canvas.
+ * Boot hand-over: drop the loader once the arena is painted, then show the menu.
+ * It hangs on a drawn frame rather than a timer, so the menu never appears over
+ * an empty canvas.
  */
 function finishBoot() {
   bootScreen.classList.add("is-done");
@@ -1369,10 +1354,8 @@ void loadArt().then(() => {
 /* ------------------------------------------------------ the markup's hooks -- */
 
 /**
- * The menu's inline handlers call these by name — `clickPlay(...)` from Enter in the
- * nickname box, `clickSpectate()`, `setCopy()`, `setContinue()`, `setReconnect()`,
- * `setCaptchaRetry()`, `window.clickCloseAd()` — exactly as the client's markup
- * does, so the names are published here rather than the markup rewritten.
+ * Hooks the menu's inline handlers call by name: clickPlay, clickSpectate,
+ * setCopy, setContinue, setReconnect, setCaptchaRetry, clickCloseAd.
  */
 Object.assign(window, {
   clickPlay: (name: unknown) => {
