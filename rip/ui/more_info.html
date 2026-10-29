@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>About powerline.io</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			height: 100%;
+			min-height: 100%;
+			overflow: hidden;
+			background: #001923;
+			scrollbar-color: #05ffff #00343b;
+			scrollbar-width: thin;
+		}
+
+		::-webkit-scrollbar {
+			width: 9px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: #00343b;
+		}
+
+		::-webkit-scrollbar-thumb {
+			border: 2px solid #00343b;
+			border-radius: 7px;
+			background: #05ffff;
+		}
+
+		body {
+			height: 100vh;
+			min-height: 0;
+			margin: 0;
+			padding: 20px;
+			overflow: hidden;
+			background: #00343b;
+			color: #dfffff;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+			font-size: 13px;
+			line-height: 1.45;
+		}
+
+		.about-page {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			min-height: 0;
+			max-width: 640px;
+			margin: 0 auto;
+		}
+
+		p {
+			margin: 0;
+		}
+
+		a {
+			color: #05ffff;
+			text-underline-offset: 2px;
+		}
+
+		a:visited {
+			color: #57dcc8;
+		}
+
+		a:hover,
+		a:focus-visible {
+			color: #ffffff;
+			text-shadow: 0 0 6px rgba(5, 255, 255, 0.9);
+		}
+
+		.brand {
+			font-size: 16px;
+			font-weight: 800;
+			text-shadow: 0 0 7px rgba(5, 255, 255, 0.55);
+		}
+
+		.creator {
+			padding-bottom: 13px;
+			border-bottom: 1px solid rgba(5, 255, 255, 0.28);
+		}
+
+		strong,
+		.updates-title {
+			color: #05ffff;
+		}
+
+		.contributor-thanks,
+		.feedback-contact {
+			margin-top: 14px;
+		}
+
+		.updates {
+			margin-top: 16px;
+			padding: 12px 14px;
+			border: 1px solid rgba(5, 255, 255, 0.38);
+			border-radius: 9px;
+			background: rgba(0, 20, 27, 0.58);
+			box-shadow: inset 0 0 12px rgba(5, 255, 255, 0.06);
+		}
+
+		.updates[aria-labelledby="updatesTitle"] {
+			flex: 1 1 auto;
+			min-height: 0;
+			overflow-y: auto;
+			overscroll-behavior: contain;
+		}
+
+		.updates-title {
+			margin: 0;
+			font-size: 15px;
+			line-height: 1.2;
+			text-decoration: underline;
+			text-decoration-thickness: 1px;
+			text-underline-offset: 3px;
+			text-shadow: 0 0 6px rgba(5, 255, 255, 0.5);
+		}
+
+		.update-date {
+			margin-top: 4px;
+			color: #9ed9d9;
+		}
+
+		.updates-title + .update-date {
+			margin-top: 12px;
+		}
+
+		.updates-list {
+			margin: 6px 0 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.updates-list + .update-date {
+			margin-top: 16px;
+		}
+
+		.updates-list li::before {
+			content: "- ";
+			color: #05ffff;
+		}
+
+		.updates-list li + li {
+			margin-top: 5px;
+		}
+	</style>
+</head>
+<body>
+	<main class="about-page">
+		<p class="creator">
+			<a class="brand" href="https://powerline.io">powerline.io</a>
+			<span> - From the creator of <a href="https://wings.io">Wings.io</a> and <a href="https://Brutal.io">Brutal.io</a></span>
+		</p>
+
+		<section class="updates" aria-labelledby="updatesTitle" tabindex="0">
+			<h1 id="updatesTitle" class="updates-title">What's new?</h1>
+			<p class="update-date">October 12, 2026</p>
+			<ul class="updates-list">
+				<li>Fixed an issue where Low quality mode sent an incorrect screen size to the server.</li>
+			</ul>
+			<p class="update-date">October 10, 2026</p>
+			<ul class="updates-list">
+				<li>Fixed two collision exploits: one allowed snakes to pass through other snakes without dying, and another killed the snake they passed through. Huge thanks to <a href="https://github.com/sneazy-ibo" target="_blank" rel="noopener noreferrer">ibo / unreadable</a> for reporting these!</li>
+				<li>Testing a new respawn algorithm that is less likely to place players in the middle of the action, to make starting out less frustrating for new players. I may fine-tune this over the next few days.</li>
+			</ul>
+			<p class="update-date">September 30, 2026</p>
+			<ul class="updates-list">
+				<li>Added new killstreak icons for 50, 100, 250, 500, and 1,000 kills.</li>
+			</ul>
+			<p class="update-date">September 29, 2026</p>
+			<ul class="updates-list">
+				<li>Added South America Region</li>
+				<li>Demogorgon nickname skin adjusted</li>
+			</ul>
+			<p class="update-date">September 16, 2026</p>
+			<ul class="updates-list">
+				<li>Added a tail growth delay and a visual cue to show when snakes are about to grow.</li>
+			</ul>
+			<p class="update-date">September 15, 2026</p>
+			<ul class="updates-list">
+				<li>Testing a reduction in energy lost when a snake dies, from 16% to 10%. Server-side tuning will continue.</li>
+				<li>Fixed an issue where the death screen sometimes showed the previous run's score.</li>
+				<li>Improved nickname and talk text sharpness.</li>
+				<li>Added “Show KOTW Effect” in Settings to toggle the glowing grid around the King of the Week.</li>
+			</ul>
+			<p class="update-date">September 2, 2026</p>
+			<ul class="updates-list">
+				<li>Updated the Android app</li>
+				<li>Added the King of the Week leaderboard, which resets every Monday at 00:00 UTC</li>
+				<li>Press Backspace while playing or following a player to switch between the King of the Week and current-game leaderboards</li>
+				<li>When the current King of the Week is playing on a server, nearby background circles light up around them</li>
+			</ul>
+			<p class="update-date">August 28, 2026</p>
+			<ul class="updates-list">
+				<li>More performance improvements</li>
+			</ul>
+			<p class="update-date">August 26, 2026</p>
+			<ul class="updates-list">
+				<li>iOS Mobile App updated</li>
+				<li>Some minor UI adjustments: End screen and You killed screen now are a bit smaller</li>
+			</ul>
+			<p class="update-date">August 25, 2026</p>
+			<ul class="updates-list">
+				<li>Resolved an occasional snake rendering glitch</li>
+			</ul>
+			<p class="update-date">August 23, 2026</p>
+			<ul class="updates-list">
+				<li>Nickname moderation support. Will enable soon.</li>
+				<li>Fixed a Safari issue</li>
+			</ul>
+			<p class="update-date">August 21, 2026</p>
+			<ul class="updates-list">
+				<li>Fixed diagonal tail lines during network lag spikes</li>
+			</ul>
+			<p class="update-date">August 20, 2026</p>
+			<ul class="updates-list">
+				<li>Fixed overlapping names and scores on the leaderboard</li>
+				<li>Added a “Time Alive” display to the bottom-left HUD</li>
+				<li>Further polished and refined the interface</li>
+			</ul>
+			<p class="update-date">August 13, 2026</p>
+			<ul class="updates-list">
+				<li>Refined transparency on the Stats screen</li>
+				<li>Updated the “You Killed” and “Killed by” messages to match the upcoming mobile design</li>
+			</ul>
+			<p class="update-date">August 11, 2026</p>
+			<ul class="updates-list">
+				<li>Added a setting to show or hide player names in-game</li>
+				<li>Redesigned the end-of-game stats screen</li>
+			</ul>
+			<p class="update-date">August 7, 2026</p>
+			<ul class="updates-list">
+				<li>Added Spectator Mode</li>
+			</ul>
+			<p class="update-date">August 6, 2026</p>
+			<ul class="updates-list">
+				<li>Improved performance in Firefox</li>
+				<li>Fixed the drawing order of some interface elements</li>
+				<li>Improved client/server synchronization when ping fluctuates</li>
+			</ul>
+			<p class="update-date">August 4, 2026</p>
+			<ul class="updates-list">
+				<li>Improved the spawn algorithm to reduce spawn killing</li>
+				<li>Food is now pulled back inside the playable area as the boundaries shrink</li>
+				<li>Added a Canvas fallback for devices that do not support WebGL</li>
+				<li>Additional visual and gameplay polishing</li>
+			</ul>
+			<p class="update-date">August 2, 2026</p>
+			<ul class="updates-list">
+				<li>Fixed head glow.</li>
+				<li>Fixed snake glow / boundary Z.</li>
+				<li>Fixed Brave startup issue (and maybe other browsers).</li>
+			</ul>
+			<p class="update-date">August 1, 2026</p>
+			<ul class="updates-list">
+				<li><strong>Significantly reduced lag across the entire game</strong> through optimizations to the network protocol, latency handling, and rendering pipeline. But if you have a slower machine or a poor connection, optimization can only go so far.</li>
+				<li><strong>Fixed the desynchronization bug.</strong></li>
+				<li><strong>Improved snake growth, tail positioning, and collision reliability.</strong></li>
+				<li><strong>Fixed an issue that could cause the snake’s head to become stuck at coordinates (0, 0).</strong></li>
+				<li><strong>Introduced a new spawn algorithm</strong> that places players closer to the action.</li>
+				<li><strong>Polished numerous minor visual and UI glitches</strong> throughout the game.</li>
+				<li><strong>Added a region selector.</strong></li>
+				<li><strong>Added a new settings panel</strong> with multiple customization toggles.</li>
+			</ul>
+		</section>
+
+		<p class="contributor-thanks">Special thanks to <a href="https://github.com/sneazy-ibo" target="_blank" rel="noopener noreferrer">ibo / unreadable</a> for his valuable feedback and helpful suggestions that have helped make the game better.</p>
+
+		<p class="feedback-contact"><strong>Have another suggestion or found a bug?</strong><br>Drop me a line at calvin [at] powerline.io and I’ll do my best to respond. Please keep your feedback constructive, and if you have a video showing the bug, attach it. It really helps!</p>
+
+	</main>
+</body>
+</html>

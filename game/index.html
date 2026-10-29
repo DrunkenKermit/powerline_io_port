@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>powerline.io!</title>
+<link rel="icon" href="__ASSET_FAVICON__">
+<!-- The original's own stylesheet, ripped from powerline.io (powerline.io/index.CUO0J50o.css). -->
+<style>__STYLES__</style>
+<style>
+  /* Port-only additions. The menu itself is the original's markup and stylesheet,
+     injected by build-game.ts at the menu placeholder below; these rules are the
+     only things powerline.io does not ship. */
+  /* The settings panel gains the port's controls rows, so it can be taller than
+     the client's fixed 324px. Everything else about it — the title plate, the
+     rows, the segmented buttons — is the client's own stylesheet. */
+  #settingsPanel {
+    height: auto;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(5, 255, 255, .35) transparent;
+  }
+  #settingsPanel::-webkit-scrollbar { width: 6px; }
+  #settingsPanel::-webkit-scrollbar-thumb { background: rgba(5, 255, 255, .3); border-radius: 3px; }
+
+  /* A keybind chip, dressed as the settings panel's own segmented buttons. */
+  .settings-keybind {
+    box-sizing: border-box; flex: none; min-width: 62px; height: 20px; padding: 0 8px;
+    color: #91bfc1; cursor: pointer; background: #00141b9e;
+    border: 1px solid #05ffff5c; border-radius: 4px;
+    font: 600 10px/18px Arial, sans-serif;
+  }
+  .settings-keybind:hover, .settings-keybind:focus-visible {
+    color: #fff; border-color: #05ffff; outline: none; box-shadow: 0 0 7px #05ffff57;
+  }
+  .settings-keybind.is-listening {
+    color: #00383d; background: #05ffff; border-color: #05ffff; box-shadow: 0 0 7px #05ffff7a;
+  }
+  .settings-keybind-row[hidden] { display: none; }
+  /* The stylesheet drops the last row's rule; with rows that can be hidden, the
+     script marks which row is last on screen. */
+  .settings-list .settings-row.is-last { border-bottom: 0; }
+
+  /* The canvas is the steering surface on touch devices: without this the browser
+     claims the drag for scrolling and zooming. */
+  #xcanvas { touch-action: none; }
+
+  /* The client's own #stats element, in the corner: the frame rate and nothing
+     else. Empty until a run starts, so it is invisible in the menu. */
+  #stats {
+    position: absolute; top: 8px; left: 10px; z-index: 5; pointer-events: none;
+    font-family: "Powerline Display", "Arial Black", Arial, sans-serif; font-size: 12px; line-height: 1.4;
+    color: #dfffff; text-shadow: 0 0 6px rgba(5, 255, 255, .55);
+  }
+  #stats:empty { display: none; }
+
+  /* Menu-only credit. Not a link, not clickable, hidden with the menu. */
+  #portCredit {
+    margin-top: 18px; text-align: center; pointer-events: none; user-select: none;
+    font: 700 12px/1.4 "Powerline Display", "Arial Black", Arial, sans-serif;
+    letter-spacing: .6px; color: #fff; text-shadow: 0 0 8px rgba(255, 255, 255, .35);
+  }
+
+  /* The boot screen. The live page is blank until its bundle answers and then
+     paints the menu and the arena on the same frame; this file is one 900 KB
+     document, so it needs something over that gap. It is the client's own logo
+     and its own "Connecting..." line, on its own board colour, and it leaves the
+     moment the first arena frame is on the canvas — the same hand-over the live
+     page makes, just made explicit. */
+  #bootScreen {
+    position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 26px;
+    background: #001b27; color: #05ffff; overflow: hidden;
+    transition: opacity 360ms ease-out;
+  }
+  #bootScreen.is-done { opacity: 0; pointer-events: none; }
+  .boot-logo {
+    width: min(620px, 74vw); height: auto; display: block;
+    filter: drop-shadow(0 0 10px rgba(5, 255, 255, .35));
+    animation: boot-logo-in 700ms cubic-bezier(.2, .9, .3, 1) both;
+  }
+  .boot-sweep {
+    position: absolute; top: 0; bottom: 0; width: 38%;
+    background: linear-gradient(90deg, rgba(5, 255, 255, 0), rgba(5, 255, 255, .13), rgba(5, 255, 255, 0));
+    transform: skewX(-14deg);
+    animation: boot-sweep 1500ms ease-in-out infinite;
+  }
+  .boot-status {
+    font-family: "Powerline Display", "Arial Black", Arial, sans-serif;
+    font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;
+    color: #05ffff; text-shadow: 0 0 10px rgba(5, 255, 255, .75);
+  }
+  .boot-status .boot-dots { font-style: normal; }
+  .boot-status .boot-dots i { font-style: normal; opacity: 0; animation: boot-dot 1200ms steps(1, end) infinite; }
+  .boot-status .boot-dots i:nth-child(2) { animation-delay: 400ms; }
+  .boot-status .boot-dots i:nth-child(3) { animation-delay: 800ms; }
+  .boot-hint {
+    position: absolute; left: 0; right: 0; bottom: 44px; text-align: center;
+    font-family: "Powerline Display", "Arial Black", Arial, sans-serif;
+    font-size: 13px; font-weight: 900; letter-spacing: .5px;
+    color: rgba(5, 255, 255, .55); text-shadow: 0 0 8px rgba(5, 255, 255, .4);
+    animation: boot-hint 1400ms ease-in-out 400ms both;
+  }
+  @keyframes boot-logo-in { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+  @keyframes boot-sweep { from { left: -40%; } to { left: 110%; } }
+  @keyframes boot-dot { 0% { opacity: 0; } 1% { opacity: 1; } 99% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes boot-hint { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .boot-logo, .boot-sweep, .boot-status .boot-dots i, .boot-hint { animation: none; }
+    .boot-sweep { display: none; }
+    .boot-status .boot-dots i { opacity: 1; }
+  }
+</style>
+</head>
+<body data-feedly-mini="yes">
+<!-- The boot screen: the client's logo and its own connecting line, over its own
+     board colour, until the first arena frame is drawn behind it. -->
+<div id="bootScreen" role="status" aria-live="polite" aria-label="Loading powerline.io">
+  <div class="boot-sweep" aria-hidden="true"></div>
+  <img class="boot-logo" src="__ASSET_LOGO__" alt="powerline.io">
+  <div class="boot-status">Connecting<em class="boot-dots"><i>.</i><i>.</i><i>.</i></em></div>
+  <div class="boot-hint">GET CLOSE TO OTHER SNAKES TO BOOST</div>
+</div>
+<!-- PORT:MENU -->
+<!-- The client's own inline script for the About dialog, from the live page. -->
+<!-- PORT:MENU SCRIPT -->
+
+<!-- The client's own About page, kept here so the overlay works from the single file. -->
+<template id="moreInfoSource">__MORE_INFO__</template>
+
+<script>__SCRIPT__</script>
+</body>
+</html>

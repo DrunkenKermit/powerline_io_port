@@ -1,0 +1,474 @@
+<body data-feedly-mini="yes">
+	<canvas id="xcanvas"></canvas>
+	<div id="stats"></div>
+	<div id="killConfirmation" class="kill-confirmation" role="status" aria-live="polite" hidden>
+		<header class="death-screen-heading">
+			<div class="death-screen-heading-mark" aria-hidden="true">
+				<span class="death-screen-heading-line"></span>
+				<svg class="death-screen-skull" viewBox="0 0 64 64">
+					<g class="kill-confirmation-skull">
+						<path d="M32 7C18 7 7 17.5 7 31c0 8 5.5 14 13 16v11h24V47c7.5-2 13-8 13-16C57 17.5 46 7 32 7Z"></path>
+						<circle cx="24" cy="32" r="5"></circle>
+						<circle cx="40" cy="32" r="5"></circle>
+						<path d="M28 57v-7M36 57v-7"></path>
+					</g>
+					<g class="kill-confirmation-crown">
+						<path d="M10 48 7 18l17 14 8-22 8 22 17-14-3 30H10Z"></path>
+						<path d="M13 55h38"></path>
+					</g>
+				</svg>
+				<span class="death-screen-heading-line"></span>
+			</div>
+			<div id="killConfirmationCause" class="death-screen-cause">YOU KILLED</div>
+			<div id="killConfirmationName" class="death-screen-killer"></div>
+		</header>
+	</div>
+	<div id="overlay" style="display:none; position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0,0,0,0.0); z-index: 2;">
+	<div id="mainDialog" style="width:510px;height:215px;background-color:rgba(0,50,50,0.0);margin:10px auto;border-radius:15px;padding:5px 15px 5px 15px;position:absolute;top:17%;left:50%;transform-origin:top center;transform:translate(-50%,0%);-ms-transform:translate(-50%,0%);-ms-transform-origin:top center;-webkit-transform:translate(-50%,0%);-webkit-transform-origin:top center;">
+		<img id="mainLogo" src="./logo.cokdJVcP.png" style="position:absolute;top:-100%;left:50%;transform:translate(-50%,0%);-ms-transform:translate(-50%,0%);-webkit-transform:translate(-50%,0%);"/>
+		<section id="statsPanel" class="death-screen-panel" role="dialog" aria-modal="true" aria-labelledby="stat-cause stat-title" aria-hidden="true" inert style="display:none;">
+			<svg class="death-icon-defs" aria-hidden="true">
+				<defs>
+					<symbol id="death-icon-target" viewBox="0 0 64 64">
+						<circle cx="32" cy="32" r="18"></circle>
+						<circle cx="32" cy="32" r="5"></circle>
+						<path d="M32 6v11M32 47v11M6 32h11M47 32h11"></path>
+					</symbol>
+					<symbol id="death-icon-crown" viewBox="0 0 64 64">
+						<path d="M10 48 7 18l17 14 8-22 8 22 17-14-3 30H10Z"></path>
+						<path d="M13 55h38"></path>
+					</symbol>
+					<symbol id="death-icon-skull" viewBox="0 0 64 64">
+						<path d="M32 7C18 7 7 17.5 7 31c0 8 5.5 14 13 16v11h24V47c7.5-2 13-8 13-16C57 17.5 46 7 32 7Z"></path>
+						<circle cx="24" cy="32" r="5"></circle>
+						<circle cx="40" cy="32" r="5"></circle>
+						<path d="M28 57v-7M36 57v-7"></path>
+					</symbol>
+					<symbol id="death-icon-badge" viewBox="0 0 64 64">
+						<path d="m32 5 7 5 9-1 3 9 8 5-4 9 4 9-8 5-3 9-9-1-7 5-7-5-9 1-3-9-8-5 4-9-4-9 8-5 3-9 9 1 7-5Z"></path>
+						<path d="m32 20 4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1 4-8Z"></path>
+					</symbol>
+					<symbol id="death-icon-podium" viewBox="0 0 64 64">
+						<path d="M6 58V32h17V15h19v23h17v20Z"></path>
+						<path d="M23 32v26M42 38v20"></path>
+						<text class="death-podium-number-2">2</text><text class="death-podium-number-1">1</text><text class="death-podium-number-3">3</text>
+					</symbol>
+					<symbol id="death-icon-stopwatch" viewBox="0 0 64 64">
+						<circle cx="32" cy="35" r="22"></circle>
+						<path d="M25 5h14M28 5v8M36 5v8"></path>
+						<path class="death-icon-stopwatch-hand" d="M32 35 42 24"></path>
+						<path d="M32 17v3M50 35h-3M32 53v-3M14 35h3"></path>
+						<circle class="death-icon-stopwatch-center" cx="32" cy="35" r="3"></circle>
+					</symbol>
+				</defs>
+			</svg>
+
+			<header class="death-screen-heading">
+				<div class="death-screen-heading-mark" aria-hidden="true">
+					<span class="death-screen-heading-line"></span>
+					<svg class="death-screen-skull" viewBox="0 0 64 64"><use href="#death-icon-skull"></use></svg>
+					<span class="death-screen-heading-line"></span>
+				</div>
+				<div id="stat-cause" class="death-screen-cause">KILLED BY</div>
+				<div id="stat-title" class="death-screen-killer">X</div>
+			</header>
+
+			<div class="death-stats-grid">
+				<article class="death-stat-card">
+					<svg class="death-stat-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#death-icon-target"></use></svg>
+					<div class="death-stat-copy"><div class="death-stat-label">SCORE</div><div id="stat-length" class="death-stat-value">0</div></div>
+				</article>
+				<article class="death-stat-card">
+					<svg class="death-stat-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#death-icon-crown"></use></svg>
+					<div class="death-stat-copy"><div class="death-stat-label">BEST SCORE</div><div id="stat-blength" class="death-stat-value">0</div></div>
+				</article>
+				<article class="death-stat-card">
+					<svg class="death-stat-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#death-icon-skull"></use></svg>
+					<div class="death-stat-copy"><div class="death-stat-label">KILL STREAK</div><div id="stat-ks" class="death-stat-value">0</div></div>
+				</article>
+				<article class="death-stat-card">
+					<svg class="death-stat-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#death-icon-badge"></use></svg>
+					<div class="death-stat-copy"><div class="death-stat-label">BEST KILL STREAK</div><div id="stat-bks" class="death-stat-value">0</div></div>
+				</article>
+				<article class="death-stat-card">
+					<svg class="death-stat-icon death-stat-icon-podium" viewBox="0 0 64 64" aria-hidden="true"><use href="#death-icon-podium"></use></svg>
+					<div class="death-stat-copy"><div class="death-stat-label">TOP POSITION</div><div id="stat-top" class="death-stat-value">0</div></div>
+				</article>
+				<article class="death-stat-card">
+					<svg class="death-stat-icon" viewBox="0 0 64 64" aria-hidden="true"><use href="#death-icon-stopwatch"></use></svg>
+					<div class="death-stat-copy"><div class="death-stat-label">TIME ALIVE</div><div id="stat-time" class="death-stat-value death-stat-value-time">0s</div></div>
+				</article>
+			</div>
+
+			<div class="death-screen-divider" aria-hidden="true"><span></span></div>
+			<div class="death-screen-actions">
+				<button id="deathPlayAgain" class="death-screen-action death-screen-action-primary" type="button"><span>ENTER</span> TO PLAY AGAIN</button>
+				<button id="deathExit" class="death-screen-action death-screen-action-secondary" type="button"><span>ESC</span> TO EXIT</button>
+			</div>
+		</section>
+		<div id="basePanel">
+			<div style="height:10px;"></div>
+			<div id="tips" class="basic-text"></div>
+			<div style="height:40px;"></div>
+			<form role="form">
+				<div class="form-group">
+					<div hidden id="topGui" style="height:100px;">
+						<div id="nickInput" style="height:50px;">
+							<center>
+							<div class="nick-entry-row">
+								<input id="nick" type="text" class="form-control input-nick" placeholder="Type a Nickname..." maxlength="15" onkeydown="if (event.keyCode == 13){ clickPlay(document.getElementById('nick').value); return false;} return true;" autofocus/>
+								<button type="button" id="spectatorButton" class="spectator-button btn-needs-server" aria-label="Spectate" title="Spectate" onclick="clickSpectate(); return false;" disabled>
+									<img class="spectator-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAASCAYAAACuLnWgAAAACXBIWXMAAAsTAAALEwEAmpwYAAALmmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4wLWMwMDAgNzkuZGFiYWNiYiwgMjAyMS8wNC8xNC0wMDozOTo0NCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxNSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE1LTEyLTI0VDAyOjA1OjUzWiIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNi0wOC0wN1QxNTo1ODoyNCswMTowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjYtMDgtMDdUMTU6NTg6MjQrMDE6MDAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MjE2NDE4YWQtMzI4OS00YzRkLTkxYzMtZWM5MWM2MjRmMzQ4IiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZDQ4NzE1ZDItYTllMi0xMWU1LTkyYjAtOThjYTJkMTI0ZWFiIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ZDZjZTZkNzItNjVhNC04MzQ4LTk2YmEtNDA4YjA5ZjkzNzgxIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB0aWZmOk9yaWVudGF0aW9uPSIxIiB0aWZmOlhSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6WVJlc29sdXRpb249IjcyMDAwMC8xMDAwMCIgdGlmZjpSZXNvbHV0aW9uVW5pdD0iMiIgZXhpZjpDb2xvclNwYWNlPSIxIiBleGlmOlBpeGVsWERpbWVuc2lvbj0iMjEiIGV4aWY6UGl4ZWxZRGltZW5zaW9uPSIxNCI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZDZjZTZkNzItNjVhNC04MzQ4LTk2YmEtNDA4YjA5ZjkzNzgxIiBzdEV2dDp3aGVuPSIyMDE1LTEyLTI0VDAyOjA1OjUzWiIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NzVhZjhhMi1kMmFiLTc1NDktYmRjZi0xODViYzFlMzkyNGYiIHN0RXZ0OndoZW49IjIwMTUtMTItMjRUMDI6MDU6NTNaIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxNSAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjIxNjQxOGFkLTMyODktNGM0ZC05MWMzLWVjOTFjNjI0ZjM0OCIgc3RFdnQ6d2hlbj0iMjAyNi0wOC0wN1QxNTo1ODoyNCswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIyLjUgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDxwaG90b3Nob3A6RG9jdW1lbnRBbmNlc3RvcnM+IDxyZGY6QmFnPiA8cmRmOmxpPmFkb2JlOmRvY2lkOnBob3Rvc2hvcDo2MDhjYTc1ZS1hOWI4LTExZTUtOTJiMC05OGNhMmQxMjRlYWI8L3JkZjpsaT4gPHJkZjpsaT5hZG9iZTpkb2NpZDpwaG90b3Nob3A6NzYxZjJiOTktN2RmOS0xMWU1LWIxYjAtZTQzYjZjZWNjMGI3PC9yZGY6bGk+IDxyZGY6bGk+YWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjg5MGY1MTQ3LTdkZjItMTFlNS1iMWIwLWU0M2I2Y2VjYzBiNzwvcmRmOmxpPiA8cmRmOmxpPmFkb2JlOmRvY2lkOnBob3Rvc2hvcDpjNmYzMDVkMi1hODRlLTExZTUtYmEyYS1kZGM5MjE1MzkyMDk8L3JkZjpsaT4gPHJkZjpsaT5hZG9iZTpkb2NpZDpwaG90b3Nob3A6Yzg0NGYwOWUtYTg0ZS0xMWU1LWJhMmEtZGRjOTIxNTM5MjA5PC9yZGY6bGk+IDxyZGY6bGk+YWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmM4NGU2ODM3LWE4NGUtMTFlNS1iYTJhLWRkYzkyMTUzOTIwOTwvcmRmOmxpPiA8cmRmOmxpPmFkb2JlOmRvY2lkOnBob3Rvc2hvcDpjODZhODBjZS1hODRlLTExZTUtYmEyYS1kZGM5MjE1MzkyMDk8L3JkZjpsaT4gPHJkZjpsaT5hZG9iZTpkb2NpZDpwaG90b3Nob3A6Yzg5ZDBiYjYtYTg0ZS0xMWU1LWJhMmEtZGRjOTIxNTM5MjA5PC9yZGY6bGk+IDxyZGY6bGk+YWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmM4OWU5Mjk1LWE4NGUtMTFlNS1iYTJhLWRkYzkyMTUzOTIwOTwvcmRmOmxpPiA8cmRmOmxpPmFkb2JlOmRvY2lkOnBob3Rvc2hvcDpjOGNkYzE3ZS1hODRlLTExZTUtYmEyYS1kZGM5MjE1MzkyMDk8L3JkZjpsaT4gPHJkZjpsaT5hZG9iZTpkb2NpZDpwaG90b3Nob3A6YzhkMDMzMDEtYTg0ZS0xMWU1LWJhMmEtZGRjOTIxNTM5MjA5PC9yZGY6bGk+IDxyZGY6bGk+eG1wLmRpZDpjZjQwNzA4ZS01MTYyLWNjNGEtYWU1Ny0wYzM3YWM3M2IwNmE8L3JkZjpsaT4gPC9yZGY6QmFnPiA8L3Bob3Rvc2hvcDpEb2N1bWVudEFuY2VzdG9ycz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7Xwh6XAAABTklEQVQ4EWNg/f+fgdaYYbBYYgvEE4H4EhA/A+LnUAziTwJiO0ossQLi3UD8H4pnArE3EJsAsScQTwPif1C5fVDHkGRJGRD/ghpwC4j1cKjTAeIbUHW/gbiCWEvakVz/EWoQsnwNEM8CYk0oXwOI3yHp6SFkSR6SYhDuwOKIaqjcGyA2h4o1oekrwWWJIRD/RFII8r4+FkvmIak5hOSbX2h6TbFZsgvNNa+BmAuImdAs4YFGfDfUEiEgZoemPGT9e7FZsg9N0SsgZiUiiTPhsOQgNktMod5E9rIakRlODS2o/0CzANaIL0FzTQuRltSh6asilIT7kRS/I8I3YtD4g+mZTGxmBLnsL1TTVTwWqQLxZag6UO5vILVYcQLiw0jxA/KhMxDrQuV6keLhKBC7kltAMkI1zwbia0D8BIgfQenrQDwHiN2wJPPBWdRTjAFwDP4xKGvAMwAAAABJRU5ErkJggg==" alt="" aria-hidden="true"/>
+								</button>
+							</div>
+							</center>
+							<div class="basic-text">
+								<h4><div id="linkText" style="font-size:15px;">[ PRESS ENTER TO PLAY ]</div></h4>
+							</div>
+						</div>
+					</div>
+					<div id="topGuiConnecting" class="basic-text" style="height:84px; transform: translateY(20%);">
+						<h3><center>Connecting...</center></h3>
+					</div>
+					<div hidden id="entryturn"></div>
+					<div hidden id="captchaFailed" style="height:90px;">
+						<div class="basic-text">
+							<h3><center>CAPTCHA VERIFICATION FAILED</center></h3>
+						</div>
+						<center>
+							<button type="button" id="captchaTryAgainButton" onclick="setCaptchaRetry(); return false;" class="btn"><div class="basic-text">TRY AGAIN</div></button>
+						</center>
+					</div>
+
+					<div hidden id="roomTimeout" style="height:30px;">
+						<div class="basic-text">
+							<h3><center><div id="linkText" style="font-size:30px;">KICKED FOR INACTIVITY</div></center></h3>
+						</div>
+						<form role="form">
+							<div class="form-group">
+								<center>
+								<button type="submit" id="reconnectButton" onclick="setReconnect(); return false;" class="btn"><div class="basic-text">RECONNECT</div></button>
+								</center>
+							</div>
+						</form>
+					</div>
+
+					<div hidden id="roomFailed" style="height:90px;">
+						<div class="basic-text">
+							<h4><center><div id="linkText" style="font-size:30px;">SERVER IS FULL!</div></center></h4>
+						</div>
+						<form role="form">
+							<div class="form-group">
+								<center>
+								<button type="submit" id="continueButton" onclick="setContinue(); return false;" class="btn"><div class="basic-text">CONTINUE</div></button>
+								</center>
+							</div>
+						</form>
+					</div>
+					<br>
+				</div>
+			</form>
+		</div>
+
+		
+		<!-- center ad -->
+		<div id="slot-2" class="powerline_center_venatus" style="top:120%;"></div>
+		
+	</div>
+
+		
+		<!-- Top Leaderboard -->
+		<div id='slot-1' class='powerline_leaderboard_venatus' style='top:0%;'></div>
+		
+
+		<div class="information-panel-stack">
+			<aside id="debugPanel" class="settings-panel debug-panel" aria-label="Debug" aria-hidden="true" inert hidden>
+				<div class="settings-panel-title">DEBUG</div>
+				<button id="debugClose" class="settings-panel-close" type="button" aria-label="Close debug">X</button>
+				<div class="debug-panel-content">
+					<div class="debug-tabs" role="tablist" aria-label="Debug settings">
+						<button id="debugTurnCompensationTab" class="debug-tab" type="button" role="tab" aria-controls="debugTurnCompensationPanel" aria-selected="true">Turn Compensation</button>
+						<button id="debugExtrapolationTab" class="debug-tab" type="button" role="tab" aria-controls="debugExtrapolationPanel" aria-selected="false" tabindex="-1">Extrapolation</button>
+					</div>
+					<div id="debugTurnCompensationPanel" class="debug-tab-panel" role="tabpanel" aria-labelledby="debugTurnCompensationTab">
+					<div class="debug-section-title">
+						<span>TURN COMPENSATION</span>
+						<button id="debugResetTurnLag" class="debug-reset-button" type="button">RESET</button>
+					</div>
+					<label class="debug-parameter-row" for="debugMinClampPing">
+						<span class="debug-parameter-label">Min clamp ping</span>
+						<input id="debugMinClampPing" class="debug-parameter-slider" data-turn-lag-key="minNetworkLag" type="range" min="0" max="300" step="1" value="90">
+						<output id="debugMinClampPingValue" class="debug-parameter-value" for="debugMinClampPing">90 ms</output>
+					</label>
+					<label class="debug-parameter-row" for="debugMaxClampPing">
+						<span class="debug-parameter-label">Max clamp ping</span>
+						<input id="debugMaxClampPing" class="debug-parameter-slider" data-turn-lag-key="maxNetworkLag" type="range" min="0" max="300" step="1" value="300">
+						<output id="debugMaxClampPingValue" class="debug-parameter-value" for="debugMaxClampPing">300 ms</output>
+					</label>
+					<label class="debug-parameter-row" for="debugMinTurnLag">
+						<span class="debug-parameter-label">Min turn lag</span>
+						<input id="debugMinTurnLag" class="debug-parameter-slider" data-turn-lag-key="minTurnLag" type="range" min="0" max="300" step="1" value="90">
+						<output id="debugMinTurnLagValue" class="debug-parameter-value" for="debugMinTurnLag">90 ms</output>
+					</label>
+					<label class="debug-parameter-row" for="debugMaxTurnLag">
+						<span class="debug-parameter-label">Max turn lag</span>
+						<input id="debugMaxTurnLag" class="debug-parameter-slider" data-turn-lag-key="maxTurnLag" type="range" min="0" max="300" step="1" value="110">
+						<output id="debugMaxTurnLagValue" class="debug-parameter-value" for="debugMaxTurnLag">110 ms</output>
+					</label>
+					<div class="debug-current-row" aria-live="polite">
+						<span>Current turn lag</span>
+						<strong id="debugCurrentTurnLag">90 ms</strong>
+					</div>
+					<div class="debug-active-calculation">
+						<div class="debug-calculation-title">
+							<span class="debug-help">
+								<button class="debug-help-trigger" type="button" aria-label="Explain turn compensation calculation" aria-describedby="debugTurnCompensationHelp">?</button>
+								<span id="debugTurnCompensationHelp" class="debug-help-tooltip" role="tooltip"><pre>Calculation:
+clampedPing = clamp(ping,
+  &lt;min-clamp-ping&gt; ms,
+  &lt;max-clamp-ping&gt; ms
+)
+
+turnLag = round(
+  &lt;min-turn-lag&gt; +
+  ((clampedPing - &lt;min-clamp-ping&gt;) /
+   (&lt;max-clamp-ping&gt; - &lt;min-clamp-ping&gt;)) ×
+  (&lt;max-turn-lag&gt; - &lt;min-turn-lag&gt;)
+)</pre></span>
+							</span>
+							<span>CALCULATION BEING USED</span>
+						</div>
+						<pre id="debugActiveCalculation" aria-live="polite">clampedPing = clamp(ping, 90 ms, 300 ms)
+
+turnLag = round(
+  90 + ((clampedPing - 90) / 210) × 20
+)</pre>
+					</div>
+					</div>
+					<form id="debugExtrapolationPanel" class="debug-tab-panel" role="tabpanel" aria-labelledby="debugExtrapolationTab" hidden>
+						<label class="debug-extrapolation-row" for="debugExtrapolationOverride">
+							<span>Override server settings</span>
+							<input id="debugExtrapolationOverride" type="checkbox">
+						</label>
+						<div id="debugExtrapolationServerSettings" class="debug-server-settings" aria-live="polite">
+							<div><span>Server settings</span><strong id="debugExtrapolationServerStatus">Waiting for server settings…</strong></div>
+							<div><span>Local Snakes</span><strong id="debugExtrapolationServerLocal">—</strong></div>
+							<div><span>Remote Snakes</span><strong id="debugExtrapolationServerRemote">—</strong></div>
+						</div>
+						<label class="debug-extrapolation-row" for="debugExtrapolationEnabled">
+							<span>Enabled</span>
+							<input id="debugExtrapolationEnabled" type="checkbox" disabled>
+						</label>
+						<label class="debug-extrapolation-row" for="debugExtrapolationLocal">
+							<span>Local Snakes (ms)</span>
+							<input id="debugExtrapolationLocal" type="number" min="0" max="4294967295" step="1" required disabled>
+						</label>
+						<label class="debug-extrapolation-row" for="debugExtrapolationRemote">
+							<span>Remote Snakes (ms)</span>
+							<input id="debugExtrapolationRemote" type="number" min="0" max="4294967295" step="1" required disabled>
+						</label>
+						<div class="debug-actions">
+							<button id="debugExtrapolationSave" class="debug-action-button debug-save-button" type="submit">Save</button>
+							<button id="debugExtrapolationCancel" class="debug-action-button" type="button">Cancel</button>
+						</div>
+					</form>
+				</div>
+			</aside>
+			<aside id="copyLinkBox" class="settings-panel share-panel" aria-label="Play With Friends!" aria-hidden="true" inert>
+				<div class="settings-panel-title">Play With Friends!</div>
+				<button id="shareClose" class="settings-panel-close" type="button" aria-label="Close share server link">X</button>
+				<div class="share-panel-content">
+					<label class="share-link-label" for="roomlinkInput">SHARE THE FOLLOWING LINK:</label>
+					<div class="share-link-row">
+						<input id="roomlinkInput" class="linkInput form-control input-copylink share-link-input" readonly>
+						<button id="copyButton" class="share-copy-button" type="button" onclick="setCopy(); return false;">COPY</button>
+					</div>
+					<div hidden id="safariTooltip" class="share-safari-tooltip">Press &#8984;+C to Copy!</div>
+				</div>
+			</aside>
+			<aside id="settingsPanel" class="settings-panel" aria-label="Settings" aria-hidden="true" inert>
+				<div class="settings-panel-title">SETTINGS</div>
+				<button id="settingsClose" class="settings-panel-close" type="button" aria-label="Close settings">X</button>
+				<div class="settings-list">
+					<label class="settings-row" for="settingsShake">
+						<span class="settings-label">Screen shake</span>
+						<span class="settings-switch">
+							<input id="settingsShake" class="settings-switch-input" type="checkbox">
+							<span class="settings-switch-track" aria-hidden="true"></span>
+						</span>
+					</label>
+					<label class="settings-row" for="settingsKillStreaks">
+						<span class="settings-label">Show Kill Streaks</span>
+						<span class="settings-switch">
+							<input id="settingsKillStreaks" class="settings-switch-input" type="checkbox">
+							<span class="settings-switch-track" aria-hidden="true"></span>
+						</span>
+					</label>
+					<label class="settings-row" for="settingsShowNames">
+						<span class="settings-label">Show Names</span>
+						<span class="settings-switch">
+							<input id="settingsShowNames" class="settings-switch-input" type="checkbox">
+							<span class="settings-switch-track" aria-hidden="true"></span>
+						</span>
+					</label>
+					<label class="settings-row" for="settingsShowKOTWEffect">
+						<span class="settings-label">Show KOTW Effect</span>
+						<span class="settings-switch">
+							<input id="settingsShowKOTWEffect" class="settings-switch-input" type="checkbox">
+							<span class="settings-switch-track" aria-hidden="true"></span>
+						</span>
+					</label>
+					<div class="settings-row">
+						<span class="settings-label">Graphics [G]</span>
+						<div class="settings-segmented" role="group" aria-label="Graphics quality">
+							<button id="settingsGraphicsLow" type="button" aria-pressed="false">Low</button>
+							<button id="settingsGraphicsHigh" type="button" aria-pressed="true">High</button>
+						</div>
+					</div>
+					<label class="settings-row" for="settingsSound">
+						<span class="settings-label">Enable sound [M]</span>
+						<span class="settings-switch">
+							<input id="settingsSound" class="settings-switch-input" type="checkbox">
+							<span class="settings-switch-track" aria-hidden="true"></span>
+						</span>
+					</label>
+					<div class="settings-row">
+						<span class="settings-label">Leaderboard [L]</span>
+						<div class="settings-segmented" role="group" aria-label="Leaderboard size">
+							<button id="settingsLeaderboardOff" type="button" aria-pressed="false">Off</button>
+							<button id="settingsLeaderboardSmall" type="button" aria-pressed="false">Small</button>
+							<button id="settingsLeaderboardBig" type="button" aria-pressed="true">Big</button>
+						</div>
+					</div>
+					<label class="settings-row" for="settingsStats">
+						<span class="settings-label">Show stats [I]</span>
+						<span class="settings-switch">
+							<input id="settingsStats" class="settings-switch-input" type="checkbox">
+							<span class="settings-switch-track" aria-hidden="true"></span>
+						</span>
+					</label>
+				</div>
+			</aside>
+			<div class="information-panel-icon-row">
+				<a id="debugToggle" class="information-panel-icon debug-panel-icon" href="#" aria-label="Open debug" aria-controls="debugPanel" aria-expanded="false" hidden></a>
+				<button id="copyLink" class="information-panel-icon copy-room-icon" type="button" aria-label="Share server link" aria-controls="copyLinkBox" aria-expanded="false" style="display:none;"></button>
+				<a id="settingsToggle" class="information-panel-icon" href="#" aria-label="Open settings" aria-controls="settingsPanel" aria-expanded="false"></a>
+			</div>
+			<div id="regionSelectorBox" class="rightBoxNews region-selector-box">
+				<button id="regionSelectorToggle" class="region-selector-toggle" type="button" aria-expanded="false" aria-controls="regionSelectorOptions" disabled>
+					<span id="regionSelectorLabel" class="region-selector-label"><span class="region-selector-server-label">Region: Loading...</span></span>
+					<span class="region-selector-arrow" aria-hidden="true">&#9662;</span>
+				</button>
+				<div id="regionSelectorHeader" class="region-selector-header" aria-hidden="true" inert>
+					<button id="regionSelectorHeaderToggle" class="region-selector-title" type="button" aria-label="Collapse region selector">SELECT REGION</button>
+					<button id="regionSelectorClose" class="region-selector-close" type="button" aria-label="Close region selector">X</button>
+				</div>
+				<div id="regionSelectorOptions" class="region-selector-options" role="listbox" aria-label="Available regions" hidden></div>
+			</div>
+			<footer id="firstRightBox" class="rightBoxNews">
+				<div class="information-panel-date">Updated: 12 Oct 2026</div>
+				<a id="moreInfoTrigger" class="basic-text2 information-panel-link" href="more_info.html" target="_blank" rel="noopener noreferrer" aria-controls="moreInfoOverlay" aria-haspopup="dialog" aria-expanded="false" style="font-family: inherit;">TELL ME MORE</a>
+			</footer>
+		</div>
+		<footer hidden id="afterRightBox" class="rightBoxSmall">
+			<a href="more_info.html" target="_blank"><font class="basic-text2" style="font-weight:bold;font-size:15px;">TELL ME MORE</font></a>
+	        </footer>
+	        <footer id="mobileBoxId" class="mobileBox" style="width:170px;height:176px;">
+			<div style="height:10px;"></div>
+    	    <center><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHsAAAAyCAYAAAB8kKTbAAAOG0lEQVR4nO1ca4wkVRU+VV3dPTs9uxtfLKi/xigG4+KDRccXPnZwZUE3GjC48ZcvokYN+scfxB+YGBWMUXxFo0ZFAhviCquyulEeKxOVxGTxEV3daAIsq4CyzOzO9KPKXOacztdfnVtdPZCoSZ+k0jVd9573PXXvOadHpjCFKUxhCv/PkEhRjGM/iXzGJnrPC3oWG1eFh8cxX1XAOMbR5M/YvMQZyxCbW0fGKjpIz5OvhDMroS0TCFcKnzECzFRBV+LgHYfDnuUkAPPlAePP4TNGs0pWj4eULk9+j26VjLmMAtNgOt78Afw9lLWOsRs6rqFXQkbMaTwKW6UgITyeEQ0HCoB4GiQ8G1BIAXiJQzcma4yHMKYJc1g2pJuTIRPS5YDGCsiYwYW8JQ6dPlyIq4gZOyFhWnplIAwrLiHPQwZMqSkwK6RIw5GBMEanKyI9wNUA3hrkHGxs46Onl4ByJ5EVeTBZwvi2jm/SnCKifIH5CYxD/gyQpxmgg8bOgU6Yv+ZEl8qVnZAwm/RqK6ECkPcgNJkXGhMmZA7MozFzchgTrgl0Av5VvXpgbOOtSauQjW2KWHVWalFTVubBeA3Kn4XxTXJ21FFP/0ZD4rhVR4YMaHTA4OZU6ChdMDSH8yEyz9Do6YHAnIicLyLfgXH3iMgVSiQg3Soit4nIFhjzGhF5WJ8bzveKyIdgzDdF5Fq9D/ReJCLfhue/EZF369w1ZT5T5QZ+Xg5jP6zjA9xNcp1Nxk8mkNV4yIiHYORDIvKskhZH4YCIXCcij+jcBPj0+DODZ8pTMPQfS1h9WBKRy5zIO7IJQUjBqzapAt5OY84TkR36bFYV+Asas1dENsMVHOGVNOYuFWZOn19Gz3eo8juw6uxq0NhZxbFFymCrL4PVJzVljfEwW6FDhIvVgTfX5K8BUdCiTV1InFCfSITRxCF0lohcUBopshPCWLgO0/NzQMDweaaIvBSeHxWRv6n3hvnbInQuBEXPwHg2tq2CTgnDaMg3uSeRlXkwmWOnAYYg+xtr8udFnLrAe6chcBjHXW5LGQjGfKt6PMMuEblZRB7S0HOviDyoggV4td6fVNwX0vzDSsfC4lsiirhIRL6vuPvKX9tx1tT5zqDl7GQnkTXwcAPwYCGWjf1BETmh91eJyHZ4trXCcMifyYAbUYZL6e+u6vlROuGI3bNiEgprM6qAi2DMCbjv6Cpow270Z4TzxbCLPJeeLRGtxQo6i8rLjNJrO4quAjb0RmTFSGZ8VAE7zbGKsR5/GHnGAR9j+e8RY3PoaKtAr9DwanA9KWGRdoi/JKYW4B69/IjiMYW/ZAydXbRTbk1o7CZcGRxp2hCWx8m6ixyuVaKyvhHbp9c84aoydhMWjHcx7KPrFhG5HfRd0o0XBjM6huyG5ytqpCX4bl530IbrQRLKDLxAIfpuOrLtrEHnZaBoL7RVgWfcWbg6upEax8MOnduqueIEHLsK8DzdBmfKHDttCBBJSpuVcD1dvR2ZXiEFiBoSz7r4vKPP0ctXIAKkuoHDCFBFpw271klgBs6rc3BCmNPrjAl4aEZWdQyCw18pInsizwX4Mx5nKZEyCXj586HC+B1m77FLHEH3OUTDqvyuiPxLjX1Qj10G8/Q+XtKNRK40FwlfFZ3vqREmhQYo1JJCKXw3iaxVPOAGbbtu0hDn/tKMdUD+LNliTuWt7HEbNIOhwfmdndKO8E0lEnHYCdmcR2hFLFIIPwwZpQGF8HHAjjEJzMBZeg5WUHtCvBvlYb70zSjg6wWzeKX3rwNcV8A5j99n9AVer4MjVB1Y1NVtBrwTwiIaOnj9r9QTRY9n2yags1NXh1cOzCFaMHirNMDHReQpG+TBg+uc7wyqNmhV/HnZs9j4+9V2XJgaCeMC79yBnnkRrtHViuXKL4OSztTU5SF9/lMR+YBz/PiRiJyCHPOuCels0+zdXU45cFXDq2fsKuDz/7W0gfR42OGkZMfBTSKyPCF/OSyMOlBATjx69BJInp+l6UGDxzS/+5Be/9Sc9w9p/m5V9oq+P/h5gB8rvjDmqZRRq0tnpyptQN+fUronS1Tj8Aw9TSAPt9bg4Q06lh3Og+DgH1XZHtWrLqxV7A88KKA6N8KbdaokkElqwbujTbvsArwdLyyzmQEyODuaU2EVKAe6GaQ+Y3Q4/ec1JmB9Gs+stgfBunEp6QC4+hEevPcn7nEw+1VQ6bFPr5kYfz3gEStzPDYhGlb1CtHttN6PlIYzEtQmrkH4SEHwnBSABuCSWgrM4Zg+KBvzuOPocCrUyxShsbGggDxw0wV2kHCzQYwHNHisi6QgefsVxmMd8SVgZKbD9ewuOdfQmT1j4z2+K3j1pOT1rHROyLMhedWMo+PtMj2ji2McXpE4Nifeclr5zINnbM/5vQ6XWKdNzBlRnx4drs9zJBl4xkaFDeCTVxKHPVQ+F97dg72Dg43mte6wY8kYHDzfcyrmJXeULEQfq2VVsnrOH9Odx5cHrGuWAZ1k4OiilIXyQqPXSMergZmPKZSBmUSIrWhPaXjvRZjYGZRXdEH0q3iQiGN48gvhjjkBvzK8iBGzk0RkHjqml3LExEpGGxBD6DXHxRjjbk58Noh4ItPnvYEXYr29A47hhJEnCyoLeeDXETcwegbzIhC/zgbkaLgJrNJ/XhGJcpJraAc8Z5tAWBHCRroGIPPeCwkpx2NMSAmGBw1leJpUDGBjsnJ4U9QHfN7uV2gsyoJ6yGijaYrsOfO814YX1QaAo0fzm9Cw4DUy8iYSFwo6Eer28U82NhLaRARRQT3Y+fWB0YzGsgfbKjOFdWnFJCDwDKQNmyQsGjIjHIa3S2OaY2TpgSwpOHuLHC6Ho06XdCDgFOjwuLKx23UVnhVgg03QFdOm/HjM0VDf3GWa28rGnSESmtUac8guvYM884CmPG+DM3Oq/WVfgnG3ayHAPPGZIvIDeP4JaC7kDtMZTZ58nWj/WUTeBR0rnxSR19KYT4nIjbDJDHKeq/hishyE7tVUGwzfL9UQki9f0KSLOdYBaEAMqcu36X3IuH0RsH1O52JYtw6cjhZbzq+kvg4fUf7fSfy+XnVlzpmgsbEPa047R68ooV6Hi/UK6dHPgFI5NRqM8GYRuUMJbqXnlsDpQdsu8uK18DxPRJ4tIv/WOeeVRqzLsEX5aqgi3lMaVZblGlC6R5shVMqer46BkUvgfrPez9LcJsjehwhkOuH+uhhYRyyXXNv0CigZ2zosL6kwNMJuTSfeqDi8LsjgbX/XAgg7Q5MY4n1DrI57jtabtzk4TdA5NcAFFYZmWR7WAkNao+XI4LlazXrA2Y2nYGTGl8HrwQyLe5W6+XN7PbFzZPSKG+7GUyAyoysB4Xqo8oRQ+D54dqmG6xWHoGhI2qthy2OUf9WBBsfTwjEoEc6rsbFkeAS6YlKoW3NbcJUsIeT+PJKLvlppiM7BsuwAmg/56GUrjh03I4MU9DplY3P9WuD9nGhdAGEFDS2w6cAuladpqDQ4QuW8Q7qirOsiGPM5oAgPFnQ8d300yNB8zkSBl8HgaHTR7/9BuBNd3ewQG5XlqtI36/A1zUVP0rlisrfA4ROIck3HabyS5gl1vELbwQyOe8UgzAiZwV9AY+4tkSj3U51RGrEOuEL2ODVjL2EhjqAGZoTt9OkZR9RwCE9EFg+WHCerCxn1m7XpuFsXbIN3HMY/4CSfSqHiyYb9oMyO/vSH6ccM62XVzFgdNTiu7P8GLOiKH9eB4kGDTj7YneIlu2JgJ5374Pn9TsJmWPXC8/DvCekLna4MXqEx717Wd+SVkXleyhD5YWNbE2CHmiuOUJuywV+fRFnwnR2M+2l4tieyJxkHdvqxJEga2WyJ887O9SyNvyw9rr0I93nZvZQM3dcd6VFAup26Ihfo7xVHqQhLjoKRYe6qYH4YOJQfczZUhSrhpNPW/ERkMeATgPcrljqACSxc1bFoh8BZtKCry0XkVfpjyT7pdhguMOuyqr9gvBoQ76VuUYR9uhoKne/BflUsr6K+wxSn+xiOOS2/DF3dnSZ6LAx9XHVkuVmd3Xu9xTZoAf5SIXsXMmcIMT4+rxtHBm+DFuAbmoAJuYKPwfdnc8TElW0pwNOaGfpqCW0ZQrvNt3QFLetcBGupCd2mny3NHk25YsHe+3G6ha3fEo6j+j1GgVVtGQo8/cTJwnmAspysMB7DsrYsWTsWGjVXpzs1Ab4CMnl1YECh3MBd2WjsNTjyfEVE/qCr6HJCdId6H6ZLxQmnp9TQ4R30a/1hHOKySIKMJeAEqKCeZs3uUUNaZupO7enCRgsztijtcDz6nWbJYrIcBKdLKW8dgxt07p9A2WzsxyLn4Bj0dKz3CvOgp4uMo2CXcueF9aDhYb4FGwfvXzsMIoUQgXMzV3y4Rivw3wZO6ycWLprUD9ekAgPXdnNyWq548ZnWk4ULIVz5wz6xPs1BHXj8VVXeBuTsXm8etm1hIcQrs+J/YugCnwPejffovdl1fm+ECuXyHJYchUKRVxPuUVNcTmduo8U/oI8V8rkNSChh5JULJylxGgxozoAcm+vZ9rfXFxfrOePeNi5x8mfhOLy7snn1YeE+I2Kx5gX0as/YAjiEGONCO/dn8WrxjC0kcEGrKq0hy0aaF/iIyA6Jxk5ppXIzA+YWuBkkdWT0Ghg8/gZsbPbKlJhKHGJ8PvZywwzcxeIZJ3aNA1zlHl91ZWEdsFyecQrH0DHdes0NnG9InHksG8/hKDciW+w/HDIhD5hAbFwMN69IIYUxzkmMzfc2P4YjJsskc5hWDFgmnh/Tp6c372+PN2/MFKYwhSlMYQpT+F8EEfkPJj3D+VoJ67wAAAAASUVORK5CYII="/></center>
+            <center>
+            <a href="https://itunes.apple.com/us/app/powerline-io/id1267397935?mt=8" target="_blank"><img src="./badge_ios.CE3Xs-iC.png" style="filter:drop-shadow(0 0 3px rgba(5,255,255,0.45));"/></a>
+            <div style="height:2px;"></div>
+			<a href="https://play.google.com/store/apps/details?id=com.profusionstudios.powerlineio" target="_blank"><img src="./badge_android.C3lKwUaa.png"/></a>
+            </center>
+	        </footer>
+		</div> <!-- end of overlay -->
+
+	</div>
+
+	<div id="kingOfTheWeekPanelStack" class="king-of-the-week-panel-stack">
+		<aside id="kingOfTheWeekLeaderboard" class="king-of-the-week-leaderboard"
+			aria-label="King of the Week leaderboard" hidden>
+			<header class="king-of-the-week-header">
+				<img class="king-of-the-week-header-crown" src="data:image/png;base64,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"
+					alt="" aria-hidden="true"/>
+				<span>KING OF THE WEEK</span>
+			</header>
+			<div id="kingOfTheWeekLeaderboardEntries"
+				class="king-of-the-week-entries" role="table" aria-live="polite"></div>
+			<footer id="kingOfTheWeekFooter" class="king-of-the-week-footer" hidden>
+				<span id="kingOfTheWeekCountdown" class="king-of-the-week-countdown"></span>
+				<button id="kingOfTheWeekExpand" class="king-of-the-week-expand"
+					type="button" aria-controls="kingOfTheWeekLeaderboardEntries"
+					aria-expanded="false" hidden>SHOW TOP 10 ▼</button>
+			</footer>
+		</aside>
+		<aside id="kingOfTheWeekReigningKing"
+			class="king-of-the-week-reigning-king"
+			aria-label="Last week’s king" hidden>
+			<header class="king-of-the-week-reigning-king-header">
+				<span>LAST WEEK’S KING</span>
+			</header>
+			<div class="king-of-the-week-reigning-king-result">
+				<div class="king-of-the-week-reigning-king-trophy-medallion"
+					aria-hidden="true">
+					<img class="king-of-the-week-reigning-king-trophy"
+						src="./trophy.CdSkcRCX.png" alt=""/>
+				</div>
+				<div class="king-of-the-week-reigning-king-identity">
+					<span class="king-of-the-week-reigning-king-kicker">WEEKLY CHAMPION</span>
+					<span id="kingOfTheWeekReigningKingNickname"
+						class="king-of-the-week-reigning-king-nickname"></span>
+				</div>
+				<div class="king-of-the-week-reigning-king-score-card">
+					<span class="king-of-the-week-reigning-king-score-label">SCORE</span>
+					<span id="kingOfTheWeekReigningKingScore"
+						class="king-of-the-week-reigning-king-score"
+						aria-label="Score"></span>
+				</div>
+			</div>
+		</aside>
+	</div>
+
+	
+	<!-- bottom leaderboard -->
+	<div id="slot-3-wrapper" style="position: fixed; height:30px; width: calc(728px + 36px); bottom: 5px; left: calc(50% - 18px); transform: translate(-50%, 0%); background: rgba(0,0,0,0.0); border-radius: 14px 14px 14px 14px; z-index: 9999; pointer-events: none;display: none;">
+		<button onclick="window.clickCloseAd();" style="position: absolute; left: 2px; bottom: 1px; background: rgba(0,0,0,0.2); color: #777777; border: none; border-radius: 12px; width: 24px; height: 24px; line-height: 24px; text-align: center; cursor: pointer; box-shadow: 1px 1px 3px #000; z-index: 10000; pointer-events: auto;">X</button>
+	</div>
+	<div id="slot-3" class="powerline_leaderboard_venatus" style="bottom:0%;"></div>
+	
+
+<div hidden id="overlay2" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0,100,100,0.25); z-index: 2;">
+<div style="width:280px;height:180px;background-color:rgba(0,0,0,0.85);margin:10px auto;border-radius:15px;padding:5px 15px 5px 15px;position:absolute;top:35%;left:50%;transform-origin:top center;transform:translate(-50%,0%);-ms-transform:translate(-50%,0%);-ms-transform-origin:top center;-webkit-transform:translate(-50%,0%);-webkit-transform-origin:top center;">
+    <center><font style="position:relative;top:30px;font-family:'Powerline Display','Arial Black',Arial,sans-serif;font-weight:bold;font-size:28px;color:#00FFFF;text-shadow: #00FFFF 0 0 5px;">LINK COPIED!</font>
+    <img id="copycheckimage" src="./copycheck.CCzp5WIa.png" style="position:relative;top:43px;"/></center>
+</div>
+</div>
+
+<div id="moreInfoOverlay" class="more-info-overlay" hidden>
+	<section class="more-info-dialog" role="dialog" aria-modal="true" aria-label="About powerline.io">
+		<iframe class="more-info-frame" src="more_info.html" title="Powerline.io information"></iframe>
+		<div class="more-info-actions">
+			<div class="more-info-socials" aria-label="Powerline.io social links">
+				<a class="more-info-social-link" href="https://x.com/AndredAlmeida" target="_blank" rel="noopener noreferrer" aria-label="AndredAlmeida on X">
+					<img src="data:image/png;base64,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" alt="">
+				</a>
+				<a class="more-info-social-link" href="https://www.reddit.com/r/powerlineio" target="_blank" rel="noopener noreferrer" aria-label="Powerline.io on Reddit">
+					<img src="./reddit.0W2VYRZz.png" alt="">
+				</a>
+				<a class="more-info-social-link" href="https://discord.gg/powerline-io-442780372917551105" target="_blank" rel="noopener noreferrer" aria-label="Powerline.io on Discord">
+					<img src="./discord.C46bpCN7.png" alt="">
+				</a>
+			</div>
+			<button id="moreInfoDismiss" class="more-info-dismiss" type="button">DISMISS</button>
+			<nav class="more-info-legal" aria-label="Legal">
+				<a href="https://powerline.io/privacy_policy">Privacy Policy</a>
+				<a href="https://powerline.io/terms_of_service">Terms of Service</a>
+			</nav>
+		</div>
+	</section>
+</div>
+
+
+
+</body>
