@@ -42,17 +42,20 @@ control scheme and keybinds) live behind the gear in the menu and persist in
 ## Layout
 
 ```
-game/index.html     page shell: port-only styles, the boot screen
-game/main.ts        menu wiring, input, settings, run loop
-game/engine.ts      simulation: snakes, bots, food, collisions, score
-game/render.ts      canvas rendering: board, snakes, pellets, HUD, minimap
-game/audio.ts       synthesized crash, spark and rub hum
-rip/ui              the original menu markup, About page and sprite rects
-rip/site            the original stylesheet, sprites, font and sound
-build-game.ts       inlines everything into powerline-play.html
-serve.ts            serves that file
-tools/bots.ts       headless bot soak (deaths, lifetimes, head teleports)
+src/index.html          page shell: port-only styles, the boot screen
+src/main.ts             menu wiring, input, settings, run loop
+src/engine.ts           simulation: snakes, bots, food, collisions, score
+src/render.ts           canvas rendering: board, snakes, pellets, HUD, minimap
+src/audio.ts            synthesized crash, spark and rub hum
+build/menu              the menu markup, styles it carries inline, About page
+build/assets            stylesheet, sprites, wordmark, font and music
+build.ts                inlines src/ and build/ into powerline-play.html
+serve.ts                serves that file
+tools/bots.ts           headless bot soak (deaths, lifetimes, head teleports)
 ```
+
+The output is a single file with no external requests, so `build/` holds only
+what the build reads.
 
 ## Build
 

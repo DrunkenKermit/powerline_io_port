@@ -1,5 +1,8 @@
 // Builds powerline-play.html: the port, the original's stylesheet, its About page
 // and every asset it uses, inlined into one file.
+//
+// Inputs: `src/` is the port's own code and page shell, `build/assets` and
+// `build/menu` are the page's media and markup. Output: powerline-play.html.
 import { extname } from "node:path";
 
 const MIME: Record<string, string> = {
@@ -15,43 +18,42 @@ async function dataUri(path: string) {
   return `data:${type};base64,${bytes.toString("base64")}`;
 }
 
-// Art from the live client's own rip, plus the piece the older page shipped.
-const RIPPED = "rip/site";
-const UI = "rip/ui";
+const ASSETS = "build/assets";
+const MENU = "build/menu";
 
 const assets: Record<string, string> = {
-  __ASSET_FONT__: await dataUri(`${RIPPED}/Roboto-Black.C0mwRDn7.ttf`),
-  __ASSET_GEAR__: await dataUri(`${RIPPED}/update-gear.D-blextj.png`),
-  __ASSET_LOGO__: await dataUri(`${RIPPED}/logo.cokdJVcP.png`),
-  __ASSET_FAVICON__: await dataUri(`${RIPPED}/favicon.TYEEW_v9.png`),
-  __ASSET_FOOD__: await dataUri(`${RIPPED}/images/food.png`),
-  __ASSET_BOOST_HINT__: await dataUri(`${RIPPED}/images/close-to-boost-w.png`),
+  __ASSET_FONT__: await dataUri(`${ASSETS}/roboto-black.ttf`),
+  __ASSET_GEAR__: await dataUri(`${ASSETS}/gear.png`),
+  __ASSET_LOGO__: await dataUri(`${ASSETS}/logo.png`),
+  __ASSET_FAVICON__: await dataUri(`${ASSETS}/favicon.png`),
+  __ASSET_FOOD__: await dataUri(`${ASSETS}/food.png`),
+  __ASSET_BOOST_HINT__: await dataUri(`${ASSETS}/close-to-boost.png`),
   // The client's playfield sprite: its first tile is the board the game stands on.
-  __ASSET_SHEET__: await dataUri(`${RIPPED}/images/sheet.png`),
-  __ASSET_BADGE_IOS__: await dataUri(`${RIPPED}/badge_ios.CE3Xs-iC.png`),
-  __ASSET_BADGE_ANDROID__: await dataUri(`${RIPPED}/badge_android.C3lKwUaa.png`),
-  __ASSET_DISCORD__: await dataUri(`${RIPPED}/discord.C46bpCN7.png`),
-  __ASSET_REDDIT__: await dataUri(`${RIPPED}/reddit.0W2VYRZz.png`),
-  __ASSET_COPYCHECK__: await dataUri(`${RIPPED}/copycheck.CCzp5WIa.png`),
-  __ASSET_SOUND__: await dataUri(`${RIPPED}/sounds/out.ogg`),
+  __ASSET_SHEET__: await dataUri(`${ASSETS}/sprites.png`),
+  __ASSET_BADGE_IOS__: await dataUri(`${ASSETS}/badge-ios.png`),
+  __ASSET_BADGE_ANDROID__: await dataUri(`${ASSETS}/badge-android.png`),
+  __ASSET_DISCORD__: await dataUri(`${ASSETS}/discord.png`),
+  __ASSET_REDDIT__: await dataUri(`${ASSETS}/reddit.png`),
+  __ASSET_COPYCHECK__: await dataUri(`${ASSETS}/copycheck.png`),
+  __ASSET_SOUND__: await dataUri(`${ASSETS}/music.ogg`),
 };
 
 /* --------------------------------------------------------------- the menu -- */
 
 // The menu is the site's, not the port's: every panel, panel title, stat card,
 // button, store badge and disconnection notice is the markup powerline.io itself
-// serves, lifted whole out of `rip/ui/original-body.html`. Only its references to
-// files on its own host are swapped for the bytes inlined below.
-let body = await Bun.file(`${UI}/original-body.html`).text();
+// serves, kept whole in `build/menu/body.html`. Only its references to files on
+// its own host are swapped for the bytes inlined below.
+let body = await Bun.file(`${MENU}/body.html`).text();
 body = body.slice(body.indexOf(">", body.indexOf("<body")) + 1, body.lastIndexOf("</body>"));
 
 const FILE_REFS: Record<string, string> = {
-  "./logo.cokdJVcP.png": "__ASSET_LOGO__",
-  "./badge_ios.CE3Xs-iC.png": "__ASSET_BADGE_IOS__",
-  "./badge_android.C3lKwUaa.png": "__ASSET_BADGE_ANDROID__",
-  "./reddit.0W2VYRZz.png": "__ASSET_REDDIT__",
-  "./discord.C46bpCN7.png": "__ASSET_DISCORD__",
-  "./copycheck.CCzp5WIa.png": "__ASSET_COPYCHECK__",
+  "./logo.png": "__ASSET_LOGO__",
+  "./badge-ios.png": "__ASSET_BADGE_IOS__",
+  "./badge-android.png": "__ASSET_BADGE_ANDROID__",
+  "./reddit.png": "__ASSET_REDDIT__",
+  "./discord.png": "__ASSET_DISCORD__",
+  "./copycheck.png": "__ASSET_COPYCHECK__",
 };
 for (const [reference, token] of Object.entries(FILE_REFS)) {
   if (!body.includes(reference)) throw new Error(`the menu no longer references ${reference}`);
@@ -94,10 +96,10 @@ body = body.replace(entryTurn, `<div id="portCredit">port by kermit.dev</div>\n\
 // single file carries that page inside a <template> instead, so the frame is given
 // the id the script fills and its src is dropped. Nothing else changes.
 const aboutFrame = '<iframe class="more-info-frame" src="more_info.html" title="Powerline.io information"></iframe>';
-if (!body.includes(aboutFrame)) throw new Error("the About dialog's frame is missing from the ripped body");
+if (!body.includes(aboutFrame)) throw new Error("the About dialog's frame is missing from build/menu/body.html");
 body = body.replace(aboutFrame, '<iframe id="moreInfoFrame" class="more-info-frame" title="Powerline.io information"></iframe>');
 
-// The ids the port's script drives. A missing one means the rip moved under it.
+// The ids the port's script drives. A missing one means the menu markup moved.
 for (const id of [
   "xcanvas",
   "overlay",
@@ -125,15 +127,15 @@ for (const id of [
   "debugPanel",
   "slot-1",
 ]) {
-  if (!body.includes(`id="${id}"`) && !body.includes(`id='${id}'`)) throw new Error(`the ripped menu has no #${id}`);
+  if (!body.includes(`id="${id}"`) && !body.includes(`id='${id}'`)) throw new Error(`the menu markup has no #${id}`);
 }
 
 /* ------------------------------------------------------------- the styles -- */
 
-// The original's stylesheet, with its two file references turned into the rip's
+// The original's stylesheet, with its two file references turned into the assets'
 // own bytes, plus every block the live page carries inline in its head: the About
 // overlay's styles, the ad slots' gating, and the slot media queries.
-let styles = await Bun.file(`${RIPPED}/index.CUO0J50o.css`).text();
+let styles = await Bun.file(`${ASSETS}/powerline.css`).text();
 // The stylesheet declares the same face three times: Powerline Display and the
 // proxima-nova-1/2 aliases. Nothing on the page asks for the aliases (checked in
 // the body, the head and the About page), and three inlined copies of the 140 KB
@@ -144,13 +146,13 @@ for (const alias of ["proxima-nova-1", "proxima-nova-2"]) {
   if (!styles.includes(`font-family:${alias}`)) throw new Error(`the stylesheet no longer declares ${alias}`);
   styles = styles.replace(new RegExp(`@font-face\\{[^}]*font-family:${alias}[^}]*\\}`, "g"), "");
 }
-styles = styles.replaceAll("url(./Roboto-Black.C0mwRDn7.ttf)", `url(${assets.__ASSET_FONT__})`);
-styles = styles.replace(/url\(\.\/update-gear\.D-blextj\.png\)/g, `url(${assets.__ASSET_GEAR__})`);
+styles = styles.replaceAll("url(./roboto-black.ttf)", `url(${assets.__ASSET_FONT__})`);
+styles = styles.replace(/url\(\.\/gear\.png\)/g, `url(${assets.__ASSET_GEAR__})`);
 
-const head = await Bun.file(`${UI}/original-head.html`).text();
+const head = await Bun.file(`${MENU}/head.html`).text();
 const inlineBlocks = [...head.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]!);
 for (const expected of [".more-info-overlay", "#slot-1", "#slot-3"]) {
-  if (!inlineBlocks.some((block) => block.includes(expected))) throw new Error(`the ripped head has lost its ${expected} styles`);
+  if (!inlineBlocks.some((block) => block.includes(expected))) throw new Error(`build/menu/head.html has lost its ${expected} styles`);
 }
 // The settings panel is laid out for the eight rows the client ships. One of them
 // is the KOTW effect, so the fixed height has to lose exactly that row (34px) or
@@ -163,33 +165,33 @@ assets.__STYLES__ =
 // The About page the launched TELL ME MORE overlay shows. It is dropped into a
 // <template> as markup, not into a string, so it needs no escaping — only the one
 // sequence that would end the element early.
-const about = await Bun.file(`${UI}/more_info.html`).text();
+const about = await Bun.file(`${MENU}/about.html`).text();
 assets.__MORE_INFO__ = about.replace(/<\/template/gi, "<\\/template");
 
 // The live page opens and closes its About dialog with an inline script of its own.
 // That script is part of the menu, so the port runs it rather than a rewrite of it.
-const menuScript = await Bun.file(`${UI}/more-info-overlay.js`).text();
+const menuScript = await Bun.file(`${MENU}/about-overlay.js`).text();
 
 /* --------------------------------------------------------------- the code -- */
 
 const result = await Bun.build({
-  entrypoints: ["game/main.ts"],
+  entrypoints: ["src/main.ts"],
   target: "browser",
   format: "iife",
   minify: true,
 });
 if (!result.success) {
   for (const log of result.logs) console.error(log);
-  throw new Error("game bundle failed");
+  throw new Error("src bundle failed");
 }
 
-let html = await Bun.file("game/index.html").text();
+let html = await Bun.file("src/index.html").text();
 for (const [placeholder, replacement] of [
   ["<!-- PORT:MENU -->", () => body],
   ["<!-- PORT:MENU SCRIPT -->", () => `<script>${menuScript}</script>`],
 ] as const) {
   // A second copy of a placeholder would put the menu inside the stylesheet.
-  if (html.split(placeholder).length !== 2) throw new Error(`game/index.html must carry exactly one ${placeholder}`);
+  if (html.split(placeholder).length !== 2) throw new Error(`src/index.html must carry exactly one ${placeholder}`);
   html = html.replace(placeholder, replacement);
 }
 // Function replacers: a bundle dropped in as a replacement string would have its

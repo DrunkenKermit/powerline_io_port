@@ -13,5 +13,5 @@
     "noUncheckedIndexedAccess": true,
     "types": ["bun"]
   },
-  "exclude": ["node_modules", "rip", "game", "tools"]
+  "exclude": ["node_modules", "build", "src", "tools"]
 }

@@ -1,5 +1,5 @@
 // Diagnostic: why do bots die so fast? Runs the engine headless for 60s.
-import { World, type Snake } from "../game/engine.ts";
+import { World, type Snake } from "../src/engine.ts";
 
 const world = new World("Me", 190);
 const lifetimes: number[] = [];

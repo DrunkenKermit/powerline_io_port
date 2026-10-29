@@ -1,5 +1,5 @@
 // Serves the built game. powerline-play.html is the whole app — every image,
-// font and sound is inlined by build-game.ts — so this only has to hand it out.
+// font and sound is inlined by build.ts — so this only has to hand it out.
 const PORT = Number(process.env.PORT ?? 3000);
 
 const server = Bun.serve({

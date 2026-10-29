@@ -3,10 +3,10 @@
 // The client's own config carries exactly three gameplay sounds and a music
 // track: `lineLoopSound` (the hum of a line riding alongside another), 
 // `crashSound` (the death), and `sparkSound` (the crackle between two snakes
-// rubbing). The rip in `rip/site/sounds` kept only the track (`out.ogg`), so the
-// three effects are synthesised here — noise and low oscillators, filtered,
-// which is what the originals are — and the port keeps the client's own
-// `out.ogg` for the death screen. There are no pellet, kill or lead cues: the
+// rubbing). `build/assets/music.ogg` is the client's track and nothing else
+// survived, so the three effects are synthesised here — noise and low
+// oscillators, filtered, which is what the originals are — and the port keeps
+// that track for the death screen. There are no pellet, kill or lead cues: the
 // client ships none, and chimes over a 1,500-pellet field are not its sound.
 //
 // Everything is gated on `enabled` (the settings panel's sound switch) and the

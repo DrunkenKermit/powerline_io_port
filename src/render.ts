@@ -3,8 +3,8 @@
 // The original paints its snakes as glowing polylines with a bright head, draws
 // pellets as soft glowing orbs, and keeps its whole in-game HUD — score, the
 // leaderboard, the minimap — on the canvas rather than in the document. This keeps
-// that arrangement and uses the rip's own art (the food orb, the leader's crown)
-// where the client did.
+// that arrangement and uses the same art (the food orb, the leader's crown) from
+// `build/assets` where the client did.
 
 import { CONFIG, interpolatedHead, interpolatedPath, type Pellet, type Snake, type Vec, type World } from "./engine.ts";
 

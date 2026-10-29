@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun serve.ts",
-    "build": "bun build-game.ts",
-    "typecheck": "bun tsc -b --noEmit && bun tsc -p game/tsconfig.json && bun tsc -p tools/tsconfig.json"
+    "build": "bun build.ts",
+    "typecheck": "bun tsc -b --noEmit && bun tsc -p src/tsconfig.json && bun tsc -p tools/tsconfig.json"
   },
   "devDependencies": {
     "@types/bun": "latest"
